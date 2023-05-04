@@ -1,0 +1,15 @@
+#arena{
+    display: grid;
+}
+
+.row{
+    background-color: red;
+}
+
+.cell{
+    border: 1px solid black;
+}
+
+.bot{
+    background-color: red;
+}
