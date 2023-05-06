@@ -11,7 +11,7 @@ arena.style.gridTemplateColumns = `repeat( ${tile} , 50px )`
 arena.style.gridTemplateRows = `repeat( ${tile} , 50px )`
 
 //Basic bot class
-class Bot {
+class BotClass {
     constructor(position, direction) {
         this.position = position;
         this.direction = direction;
@@ -19,6 +19,67 @@ class Bot {
     getNewDirection(){
         const randomNum = generateRandomNumber(4)
 
+    }
+    calcNextMove() {    
+        // current location = bot.position
+        // current direction = bot.direction
+        // check if next direction is valid 
+       
+            //if invalid, we need to create a loop to generate new direction
+                //we must check again, if the next step is valid or not
+        
+        switch(this.direction){
+        case 1: 
+            if((this.position - tile) > 0){
+                //if valid, we replace the location of the bot with new position
+                //do the calculation
+                const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
+                oldBotTile.classList.remove('bot')
+
+                const newBotTile = document.querySelectorAll(`[data-position~="${this.position - tile}"]`)[0]
+                newBotTile.classList.add('bot')
+                this.position -= tile
+            }
+            else{
+                // asssign a new direction
+                // execute calcNextMove again using the new direction
+                // getNewDirection()
+            }
+            break
+            
+        case 2:
+            if((this.position + tile) <= totalTiles ){
+                const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
+                oldBotTile.classList.remove('bot')
+
+                const newBotTile = document.querySelectorAll(`[data-position~="${this.position + tile}"]`)[0]
+                newBotTile.classList.add('bot')
+                this.position += tile
+            }
+            break
+
+        case 3: 
+            if(((this.position -1) % tile) != 0){
+                const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
+                oldBotTile.classList.remove('bot')
+
+                const newBotTile = document.querySelectorAll(`[data-position~="${this.position - 1}"]`)[0]
+                newBotTile.classList.add('bot')
+                this.position -= 1 
+                
+            }
+            break
+        case 4:
+            if(((this.position +1 )% tile) != 1){
+                const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
+                oldBotTile.classList.remove('bot')
+        
+                const newBotTile = document.querySelectorAll(`[data-position~="${this.position + 1}"]`)[0]
+                newBotTile.classList.add('bot')
+                this.position += 1
+            } 
+            break
+        }
     }
 }
 
@@ -94,83 +155,15 @@ const nextPosition = (position, direction) => {
 //EVENT LISTENER FOR THE BATTLE BUTTON
 battleBtn.addEventListener("click", () => {
     //  calcNextMove(botsArr)
-     botsArr.forEach(bot => bot.calcNextMove )
+     botsArr.forEach(bot => bot.calcNextMove())
 })
 
 
 
-const calcNextMove = (botsArr) =>{
-    console.log(botsArr)
-    
-    botsArr.forEach(bot => {
-        let temp;
-        // current location = bot.position
-        // current direction = bot.direction
-        // check if next direction is valid 
-       
-            //if invalid, we need to create a loop to generate new direction
-                //we must check again, if the next step is valid or not
-        
-        switch(bot.direction){
-        case 1: 
-            temp -= tile
-            if((bot.position - tile) > 0){
-                //if valid, we replace the location of the bot with new position
-                //do the calculation
-                const oldBotTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
-                oldBotTile.classList.remove('bot')
-
-                const newBotTile = document.querySelectorAll(`[data-position~="${bot.position - tile}"]`)[0]
-                newBotTile.classList.add('bot')
-                bot.position -= tile
-            }
-            else{
-                // asssign a new direction
-                // execute calcNextMove again using the new direction
-                // getNewDirection()
-            }
-            break
-            
-        case 2:
-            if((bot.position + tile) <= totalTiles ){
-                const oldBotTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
-                oldBotTile.classList.remove('bot')
-
-                const newBotTile = document.querySelectorAll(`[data-position~="${bot.position + tile}"]`)[0]
-                newBotTile.classList.add('bot')
-                bot.position += tile
-            }
-            break
-
-        case 3: 
-            if(((bot.position -1) % tile) != 0){
-                const oldBotTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
-                oldBotTile.classList.remove('bot')
-
-                const newBotTile = document.querySelectorAll(`[data-position~="${bot.position - 1}"]`)[0]
-                newBotTile.classList.add('bot')
-                bot.position -= 1 
-                
-            }
-            break
-        case 4:
-            if(((bot.position +1 )% tile) != 1){
-                const oldBotTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
-                oldBotTile.classList.remove('bot')
-        
-                const newBotTile = document.querySelectorAll(`[data-position~="${bot.position + 1}"]`)[0]
-                newBotTile.classList.add('bot')
-                bot.position += 1
-            } 
-            break
-        }
-    })
-}
-
 const generateBots = () => {
     //creates a bot with a new position and direction
-    botsArr.push( new Bot(generateRandomNumber(totalTiles), generateRandomNumber(4)))
-    console.log(botsArr)
+    botsArr.push( new BotClass (generateRandomNumber(totalTiles), generateRandomNumber(4)))
+    console.log(botsArr[0].position, botsArr[0].direction)
 
     botsArr.map( bot => {
         //place bot grid
