@@ -18,29 +18,6 @@ class BotClass {
     }
 
     getNewDirection(){
-        const fullDirectionArr = [1,2,3,4]
-        // remove the existing direction from the direction arr
-        const remainingDirections = fullDirectionArr.filter(directions => directions != this.direction)
-        // run calcNextMove with directions in the remainingDirections array
-        
-        //if the first item in the array is a valid direction   
-            //reset the fullDirectionArr to be [1,2,3,4]
-            //run calcNextMove()
-        //else
-            //remove the current item from the remainingDirections array
-            //try with the next item in the array
-        
-        
-        /*
-        const oldDirection = this.direction
-        do{
-            this.direction = generateRandomNumber(4)
-        }
-        while(generateRandomNumber(4) === this.direction)
-
-        console.log("NEW DIRECTION", this.direction)
-        */
-
         let isValid = false
 
         while(!isValid){
@@ -56,11 +33,15 @@ class BotClass {
     updateBotPosition(newPosition){
         //if valid, we replace the location of the bot with new position
         //do the calculation
+        console.log("current bot position", this.position, this.direction)
         const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
         oldBotTile.classList.remove('bot')
 
+        console.log('position to insert ', newPosition)
+
         const newBotTile = document.querySelectorAll(`[data-position~="${newPosition}"]`)[0]
         newBotTile.classList.add('bot')
+        
     }
 
     //will determine if the bots next movement is valid
@@ -83,10 +64,43 @@ class BotClass {
         }
     }
     /*
-        1. Get 
+    * when button is pressed:
+            *first check to see if the next move is valid giving the direction
+                *if it is valid, move the bot based on it's direction
+                *else, calculate a new direction
+                    *check to see if the new direction is valid
+                    *if not, repeat, otherwise, return new direction
+                    *update the new direction
     */
+
+    setNextDirection(){
+        switch(this.direction){
+            case 1:
+                if((this.position - tile) < 1){
+                    //find new direction and stop new direction is valid
+                    //once new direction s valid update the new bots direction
+                    this.getNewDirection()
+                }
+                break
+            case 2:
+                if((this.position + tile) > totalTiles ){
+                    this.getNewDirection()
+                }
+                break
+            case 3:
+                if(((this.position -1) % tile) == 0){
+                    this.getNewDirection()
+                }
+                break
+            case 4:
+                if(((this.position +1 )% tile) == 1){
+                    this.getNewDirection()
+                } 
+                break
+        }
+    }
     
-    calcNextMove() {    
+    calcNextMove() {
         // current location = bot.position
         // current direction = bot.direction
         // check if next direction is valid 
@@ -94,65 +108,31 @@ class BotClass {
             //if invalid, we need to create a loop to generate new direction
                 //we must check again, if the next step is valid or not
         
+        //will update direction if needed
+        this.setNextDirection()
+
         switch(this.direction){
         case 1: 
-            /*
-                if((this.position - tile) > 0){
-                this.updateBotPosition(this.position - tile)
-                
-                this.position -= tile
-            }
-            else{
-                // asssign a new direction
-                // execute calcNextMove again using the new direction
-                // getNewDirection()
-                this.getNewDirection()
-                
-            }
-            */
-            console.log("BOTS", this.position, this.direction)
-            if((this.position - tile) < 0){
-                //find new direction and stop new direction is valid
-                //once new direction s valid update the new bots direction
-                this.getNewDirection()
-                this.calcNextMove()
-            }
-            else{
-                this.updateBotPosition(this.position - tile)
-                this.position -= tile
-            
-            }
+            this.updateBotPosition(this.position - tile)
+            this.position -= tile
             break
             
         case 2:
-            if((this.position + tile) <= totalTiles ){
-                this.updateBotPosition(this.position + tile)
-                this.position += tile
-            }
-            else{
-                this.getNewDirection()
-            }
+            this.updateBotPosition(this.position + tile)
+            this.position += tile
             break
 
         case 3: 
-            if(((this.position -1) % tile) != 0){
-                this.updateBotPosition(this.position -1)
-                this.position -= 1 
-            }
-            else{
-                this.getNewDirection()
-            }
+            this.updateBotPosition(this.position -1)
+            this.position -= 1 
             break
         case 4:
-            if(((this.position +1 )% tile) != 1){
-                this.updateBotPosition(this.position + 1)
-                this.position += 1
-            } 
-            else{
-                this.getNewDirection()
-            }
+            this.updateBotPosition(this.position + 1)
+            this.position += 1
             break
         }
+
+        console.log("Updated bot position ", this)
     }
 }
 
@@ -178,31 +158,6 @@ const generateArena = () => {
         }
     }
 }
-
-
-//IGNORE NOT DONE
-/*
-const nextPosition = (position, direction) => {
-    // 1 is up
-    // 2 is down
-    // 3 is left 
-    // 4 is right
-
-    let temp = position
-
-    switch(direction){
-        case 1: 
-            temp += tile
-            return nextPosition > 0
-        case 2:
-            return nextPosition <= totalTiles
-        case 3: 
-            return nextPosition % tile != 0
-        case 4: 
-            return nextPosition % tile != 1
-    }
-}
-*/
 
 //EVENT LISTENER FOR THE BATTLE BUTTON
 battleBtn.addEventListener("click", () => {
