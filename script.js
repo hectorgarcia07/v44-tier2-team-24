@@ -101,14 +101,6 @@ class BotClass {
     }
     
     calcNextMove() {
-        // current location = bot.position
-        // current direction = bot.direction
-        // check if next direction is valid 
-       
-            //if invalid, we need to create a loop to generate new direction
-                //we must check again, if the next step is valid or not
-        
-        //will update direction if needed
         this.setNextDirection()
 
         switch(this.direction){
