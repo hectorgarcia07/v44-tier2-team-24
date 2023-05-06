@@ -17,8 +17,13 @@ class BotClass {
         this.direction = direction;
     }
     getNewDirection(){
-        const randomNum = generateRandomNumber(4)
+        const oldDirection = this.direction
+        do{
+            this.direction = generateRandomNumber(4)
+        }
+        while(generateRandomNumber(4) === this.direction)
 
+        console.log("NEW DIRECTION", this.direction)
     }
     calcNextMove() {    
         // current location = bot.position
@@ -44,6 +49,8 @@ class BotClass {
                 // asssign a new direction
                 // execute calcNextMove again using the new direction
                 // getNewDirection()
+                this.getNewDirection()
+                
             }
             break
             
@@ -56,6 +63,9 @@ class BotClass {
                 newBotTile.classList.add('bot')
                 this.position += tile
             }
+            else{
+                this.getNewDirection()
+            }
             break
 
         case 3: 
@@ -66,7 +76,9 @@ class BotClass {
                 const newBotTile = document.querySelectorAll(`[data-position~="${this.position - 1}"]`)[0]
                 newBotTile.classList.add('bot')
                 this.position -= 1 
-                
+            }
+            else{
+                this.getNewDirection()
             }
             break
         case 4:
@@ -78,6 +90,9 @@ class BotClass {
                 newBotTile.classList.add('bot')
                 this.position += 1
             } 
+            else{
+                this.getNewDirection()
+            }
             break
         }
     }
