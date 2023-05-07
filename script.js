@@ -3,16 +3,16 @@ import BotClass from './BotClass.js'
 
 const arena = document.getElementById('arena')
 const battleBtn = document.getElementById('battle')
-const tile = 8 //will be used to create an n x n arena
+const tile = 2 //will be used to create an n x n arena
 const totalTiles = tile * tile //will hold the maximum tiles a n x n grid can have
 const botsArr = []
 let isGameRunning = false
 let intervalId = null
+const operator = 'AND'
 
 //creates the n x n layout
 arena.style.gridTemplateColumns = `repeat( ${tile} , 50px )`
 arena.style.gridTemplateRows = `repeat( ${tile} , 50px )`
-
 
 //generates a n x n grid
 const generateArena = () => {
@@ -52,8 +52,63 @@ battleBtn.addEventListener("click", () => {
     }
 })
 
-const startBattle= () => {
-    botsArr.forEach(bot => bot.calcNextMove())
+const checkCollision = () =>{
+    // check over the current location of each robot
+    //if two robots have the same location number
+        //then collision occurred
+        //write logic for collision
+    const locationArr = botsArr.map(bot => bot.position)
+    console.log("Location array", locationArr)
+    
+    for (let i = 0; i < locationArr.length; i++){
+        for (let j = i + 1; j < locationArr.length; j++){
+            if(locationArr[i] === locationArr[j]){
+                return true // if any two numbers are the same, return 
+            }
+        }
+    }
+    return false
+}
+
+const handleCollision = () =>{
+    console.log('COLLISION!!!!!!!!!!')
+    //get value from bot 1
+    //get value from bot 2
+    //opeartion = AND
+    //calculate final value for bot 1 & bot 2
+    
+    //create Map
+    //itterate all bots and we key as position and increase the value of the key
+    //each time we get a psotion
+    //itterate map, if there the is > 1 then there is a repition
+    //once we have the positon, then itterate botsArr and find all keys that
+    //contain the position
+    
+
+    const positionMap = new Map()
+
+    botsArr.forEach( bot => {
+        if( positionMap.has(bot.position) ){
+            positionMap.set(bot.position, positionMap.get(bot.position) + 1)
+        }
+        else{
+            positionMap.set(bot.position, 1)
+        }
+    } )
+    
+}
+
+const startBattle = () => {
+
+    botsArr.forEach(bot => {
+        bot.calcNextMove()
+
+        if(checkCollision()){
+            console.log("BOTS ARRA", botsArr)
+            handleCollision()
+        }
+    })
+
 }
 
 const generateBots = (numOfBots = 2) => {
@@ -80,7 +135,6 @@ const generateBots = (numOfBots = 2) => {
         
     }
     
-    console.log(botsArr)
     botsArr.map(bot => {
         //place bot grid
         const botTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]

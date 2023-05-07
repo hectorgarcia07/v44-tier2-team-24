@@ -7,6 +7,7 @@ class BotClass {
         this.direction = direction;
         this.tile = tile
         this.totalTiles = this.tile * this.tile
+        this.value = 1
     }
 
     getNewDirection(){
@@ -19,17 +20,14 @@ class BotClass {
                 isValid = true
             }
         }
-        console.log("new direction ", this.direction)
     }
 
     updateBotPosition(newPosition){
         //if valid, we replace the location of the bot with new position
         //do the calculation
-        console.log("current bot position", this.position, this.direction)
         const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
         oldBotTile.classList.remove('bot')
 
-        console.log('position to insert ', newPosition)
 
         const newBotTile = document.querySelectorAll(`[data-position~="${newPosition}"]`)[0]
         newBotTile.classList.add('bot')
@@ -107,7 +105,8 @@ class BotClass {
             break
         }
 
-        console.log("Updated bot position ", this)
+        //check to see if a collision
+
     }
 }
 
