@@ -9,3 +9,8 @@
 .bot{
     background-color: red;
 }
+
+
+button{
+    cursor:pointer;
+}

@@ -3,9 +3,11 @@ import BotClass from './BotClass.js'
 
 const arena = document.getElementById('arena')
 const battleBtn = document.getElementById('battle')
-const tile = 4 //will be used to create an n x n arena
+const tile = 8 //will be used to create an n x n arena
 const totalTiles = tile * tile //will hold the maximum tiles a n x n grid can have
 const botsArr = []
+let isGameRunning = false
+let intervalId = null
 
 //creates the n x n layout
 arena.style.gridTemplateColumns = `repeat( ${tile} , 50px )`
@@ -38,20 +40,48 @@ const generateArena = () => {
 //EVENT LISTENER FOR THE BATTLE BUTTON
 battleBtn.addEventListener("click", () => {
     //  calcNextMove(botsArr)
-    startBattle()
-    
+    if(!isGameRunning){
+        intervalId = setInterval(startBattle,1000)
+        isGameRunning = true
+        battleBtn.innerText = 'Stop'
+     }else{
+        clearInterval(intervalId)
+        isGameRunning = false
+        battleBtn.innerText = 'Battle'
+
+    }
 })
 
 const startBattle= () => {
     botsArr.forEach(bot => bot.calcNextMove())
 }
 
-const generateBots = () => {
-    //creates a bot with a new position and direction
-    botsArr.push( new BotClass (generateRandomNumber(totalTiles), 1, tile))
-    console.log(botsArr[0].position, botsArr[0].direction)
+const generateBots = (numOfBots = 2) => {
+    // intialPositionArr = []
+    // loop through the array to check for used positions
+        // if there are robots, 
+            //look at their current position, generate a number != their position
+            
+    for(let i = 0; i < numOfBots; i++){
+        let isValidPosition = false
+        let currPosition = []
 
-    botsArr.map( bot => {
+        botsArr.forEach(bot => currPosition.push(bot.position))
+
+        while(!isValidPosition){
+            let newPosition = generateRandomNumber(totalTiles)
+
+            if(!currPosition.includes(newPosition)){
+                //creates a bot with a new position and direction
+                botsArr.push(new BotClass (newPosition, generateRandomNumber(4), tile))
+                isValidPosition = true
+            }
+        }
+        
+    }
+    
+    console.log(botsArr)
+    botsArr.map(bot => {
         //place bot grid
         const botTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
 
