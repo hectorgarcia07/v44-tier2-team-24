@@ -63,15 +63,6 @@ class BotClass {
                 return ((this.position +1 )% tile) != 1
         }
     }
-    /*
-    * when button is pressed:
-            *first check to see if the next move is valid giving the direction
-                *if it is valid, move the bot based on it's direction
-                *else, calculate a new direction
-                    *check to see if the new direction is valid
-                    *if not, repeat, otherwise, return new direction
-                    *update the new direction
-    */
 
     setNextDirection(){
         switch(this.direction){
