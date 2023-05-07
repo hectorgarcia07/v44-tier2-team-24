@@ -1,4 +1,5 @@
 import generateRandomNumber from './utils/randomNum.js';
+import BotClass from './BotClass.js'
 
 const arena = document.getElementById('arena')
 const battleBtn = document.getElementById('battle')
@@ -10,114 +11,6 @@ const botsArr = []
 arena.style.gridTemplateColumns = `repeat( ${tile} , 50px )`
 arena.style.gridTemplateRows = `repeat( ${tile} , 50px )`
 
-//Basic bot class
-class BotClass {
-    constructor(position, direction) {
-        this.position = position;
-        this.direction = direction;
-    }
-
-    getNewDirection(){
-        let isValid = false
-
-        while(!isValid){
-            let newDirection = generateRandomNumber(4)
-            if(this.isValidMove(newDirection)){
-                this.direction = newDirection
-                isValid = true
-            }
-        }
-        console.log("new direction ", this.direction)
-    }
-
-    updateBotPosition(newPosition){
-        //if valid, we replace the location of the bot with new position
-        //do the calculation
-        console.log("current bot position", this.position, this.direction)
-        const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
-        oldBotTile.classList.remove('bot')
-
-        console.log('position to insert ', newPosition)
-
-        const newBotTile = document.querySelectorAll(`[data-position~="${newPosition}"]`)[0]
-        newBotTile.classList.add('bot')
-        
-    }
-
-    //will determine if the bots next movement is valid
-    isValidMove(direction) {
-        /*
-            1 is up
-            2 is down
-            3 is left 
-            4 is right
-        */
-        switch (direction) {
-            case 1:
-                return (this.position - tile) > 0
-            case 2:
-                return (this.position + tile) <= totalTiles
-            case 3:
-                return ((this.position -1) % tile) != 0
-            case 4:
-                return ((this.position +1 )% tile) != 1
-        }
-    }
-
-    setNextDirection(){
-        switch(this.direction){
-            case 1:
-                if((this.position - tile) < 1){
-                    //find new direction and stop new direction is valid
-                    //once new direction s valid update the new bots direction
-                    this.getNewDirection()
-                }
-                break
-            case 2:
-                if((this.position + tile) > totalTiles ){
-                    this.getNewDirection()
-                }
-                break
-            case 3:
-                if(((this.position -1) % tile) == 0){
-                    this.getNewDirection()
-                }
-                break
-            case 4:
-                if(((this.position +1 )% tile) == 1){
-                    this.getNewDirection()
-                } 
-                break
-        }
-    }
-    
-    calcNextMove() {
-        this.setNextDirection()
-
-        switch(this.direction){
-        case 1: 
-            this.updateBotPosition(this.position - tile)
-            this.position -= tile
-            break
-            
-        case 2:
-            this.updateBotPosition(this.position + tile)
-            this.position += tile
-            break
-
-        case 3: 
-            this.updateBotPosition(this.position -1)
-            this.position -= 1 
-            break
-        case 4:
-            this.updateBotPosition(this.position + 1)
-            this.position += 1
-            break
-        }
-
-        console.log("Updated bot position ", this)
-    }
-}
 
 //generates a n x n grid
 const generateArena = () => {
@@ -155,7 +48,7 @@ const startBattle= () => {
 
 const generateBots = () => {
     //creates a bot with a new position and direction
-    botsArr.push( new BotClass (generateRandomNumber(totalTiles), 1))
+    botsArr.push( new BotClass (generateRandomNumber(totalTiles), 1, tile))
     console.log(botsArr[0].position, botsArr[0].direction)
 
     botsArr.map( bot => {
@@ -166,8 +59,6 @@ const generateBots = () => {
         botTile.classList.add('bot')
     })
 }
-
-
 
 //initialize the areana
 generateArena()
