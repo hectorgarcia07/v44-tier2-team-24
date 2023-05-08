@@ -14,3 +14,26 @@
 button{
     cursor:pointer;
 }
+
+
+.red{
+    background-color: red;
+}
+.blue{
+    background-color: blue;
+}
+.green{
+    background-color: green;
+}
+.yellow{
+    background-color: yellow;
+}
+.orange{
+    background-color: orange;
+}
+.aquamarine{
+    background-color: aquamarine;
+}
+.purple{
+    background-color:purple;
+}
