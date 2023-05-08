@@ -5,10 +5,28 @@ class BotClass {
     constructor(position, direction, tile) {
         this.position = position;
         this.direction = direction;
+        this.dirctionWord = this.determineDirections()
         this.tile = tile
         this.totalTiles = this.tile * this.tile
-        this.value = 1
+        // this.value = 1
         this.color = this.getRandomColor()
+    }
+
+    determineDirections(){
+        switch (this.direction){
+            case 1:
+                return "⬆️"
+                break
+            case 2:
+                return "⬇️"
+                break
+            case 3: 
+                return "⬅️"
+                break
+            case 4:
+                return "➡️"
+                break
+        }
     }
 
     getRandomColor() {
@@ -21,7 +39,8 @@ class BotClass {
 
     getNewDirection() {
         let isValid = false
-        console.log('getting new direction!!!!!!!!', this)
+        console.log("new direction")
+        
         while (!isValid) {
             let newDirection = generateRandomNumber(4)
             if (this.isValidMove(newDirection)) {

@@ -60,7 +60,6 @@ const checkCollision = () => {
     //if two robots have the same location number
     //then collision occurred
     //write logic for collision
-
     
     const locationArr = botsArr.map(bot => bot.position)
     let counts = {}
@@ -69,12 +68,11 @@ const checkCollision = () => {
             counts[locationArr[i]] = 1;
         }
         else {
+            console.log("bot array", botsArr)
             console.log("COLLISION!")
             return true
         }
     }
-
-    console.log('locatioin', locationArr)
 
     return false
     
@@ -118,11 +116,11 @@ const handleCollision = () => {
 
 }
 
-const startBattle = () => {
+async function startBattle ()  {
 
-    botsArr.forEach(bot => {
-        bot.calcNextMove()
-    })
+    for(let i = 0; i < botsArr.length; i++){
+        await botsArr[i].calcNextMove()
+    }
 
     // console.log("BOTS CURRENT position,", botsArr)
     
