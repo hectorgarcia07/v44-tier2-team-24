@@ -71,7 +71,11 @@ const checkCollision = () =>{
 }
 
 const handleCollision = () =>{
-    console.log('COLLISION!!!!!!!!!!')
+    console.log('COLLISION!!!!!!!!!!', botsArr[0].printBotData(), botsArr[1].printBotData())
+
+    console.log(botsArr[0].printBotData())
+    console.log(botsArr[1].printBotData())
+
     //get value from bot 1
     //get value from bot 2
     //opeartion = AND
@@ -104,7 +108,6 @@ const startBattle = () => {
         bot.calcNextMove()
 
         if(checkCollision()){
-            console.log("BOTS ARRA", botsArr)
             handleCollision()
         }
     })
@@ -128,11 +131,10 @@ const generateBots = (numOfBots = 2) => {
 
             if(!currPosition.includes(newPosition)){
                 //creates a bot with a new position and direction
-                botsArr.push(new BotClass (newPosition, generateRandomNumber(4), tile))
+                botsArr.push(new BotClass (newPosition, generateRandomNumber(4), tile, `Bot ${i + 1}`, `bot${i + 1}` ))
                 isValidPosition = true
             }
         }
-        
     }
     
     botsArr.map(bot => {
@@ -140,7 +142,7 @@ const generateBots = (numOfBots = 2) => {
         const botTile = document.querySelectorAll(`[data-position~="${bot.position}"]`)[0]
 
         //bot will be represented by a red square
-        botTile.classList.add('bot')
+        botTile.classList.add(bot.colorClass)
     })
 }
 

@@ -2,36 +2,66 @@
 import generateRandomNumber from './utils/randomNum.js';
 //Basic bot class
 class BotClass {
-    constructor(position, direction, tile) {
+    constructor(position, direction, tile, name, colorClass) {
         this.position = position;
         this.direction = direction;
         this.tile = tile
         this.totalTiles = this.tile * this.tile
         this.value = 1
+        this.name = name
+        this.colorClass = colorClass
+
+        console.log(this.colorClass)
+    }
+
+    printBotData() {
+        return `${this.name}: Position: ${this.position}, Direction: ${ this.printDirection() }`
+    }
+
+    printDirection(){
+        switch(this.direction){
+            case 1: 
+                return "up"
+            case 2:
+                return "down"
+            case 3: 
+                return "left"
+            case 4:
+                return "right"
+        }
     }
 
     getNewDirection(){
-        let isValid = false
+        const validDirections = []
 
-        while(!isValid){
-            let newDirection = generateRandomNumber(4)
-            if(this.isValidMove(newDirection)){
-                this.direction = newDirection
-                isValid = true
+        for(let i = 1; i <= 4; i++){
+            if(this.isValidMove(i)){
+                validDirections.push(i)
             }
         }
+        
+        let randIndex = generateRandomNumber(validDirections.length)
+        console.log(`old direction ${this.printDirection()}`)
+        this.direction = validDirections[randIndex - 1]
+        console.log(`New direction ${this.printDirection()}`)
+
     }
 
     updateBotPosition(newPosition){
         //if valid, we replace the location of the bot with new position
         //do the calculation
         const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
-        oldBotTile.classList.remove('bot')
+        oldBotTile.classList.remove(this.colorClass)
 
 
         const newBotTile = document.querySelectorAll(`[data-position~="${newPosition}"]`)[0]
-        newBotTile.classList.add('bot')
+        newBotTile.classList.add(this.colorClass)
         
+        this.position = newPosition
+        
+        console.log(`New position now: ${this.printBotData()}`)
+
+        console.log('#######################################################################################')
     }
 
     //will determine if the bots next movement is valid
@@ -55,6 +85,7 @@ class BotClass {
     }
 
     setNextDirection(){
+        
         switch(this.direction){
             case 1:
                 if((this.position - this.tile) < 1){
@@ -82,26 +113,24 @@ class BotClass {
     }
     
     calcNextMove() {
+        console.log(`Moving Bot : ${this.printBotData()}`)
+
         this.setNextDirection()
 
         switch(this.direction){
         case 1: 
             this.updateBotPosition(this.position - this.tile)
-            this.position -= this.tile
             break
             
         case 2:
             this.updateBotPosition(this.position + this.tile)
-            this.position += this.tile
             break
 
         case 3: 
             this.updateBotPosition(this.position -1)
-            this.position -= 1 
             break
         case 4:
             this.updateBotPosition(this.position + 1)
-            this.position += 1
             break
         }
 
