@@ -2,14 +2,15 @@
 import generateRandomNumber from './utils/randomNum.js';
 //Basic bot class
 class BotClass {
-    constructor(position, direction, tile, name, colorClass) {
+    constructor(position, direction, tile, name, colorClass, value) {
         this.position = position;
         this.direction = direction;
         this.tile = tile
         this.totalTiles = this.tile * this.tile
-        this.value = 1
+        this.value = value
         this.name = name
         this.colorClass = colorClass
+        this.opperation = '&&'
 
         console.log(this.colorClass)
     }
@@ -62,6 +63,14 @@ class BotClass {
         console.log(`New position now: ${this.printBotData()}`)
 
         console.log('#######################################################################################')
+    }
+
+    removeFromDom(){
+        const oldBotTile = document.querySelectorAll(`[data-position~="${this.position}"]`)[0]
+        oldBotTile.classList.remove(this.colorClass)
+
+        this.position = null;
+        this.direction = null;
     }
 
     //will determine if the bots next movement is valid

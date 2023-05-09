@@ -3,9 +3,9 @@ import BotClass from './BotClass.js'
 
 const arena = document.getElementById('arena')
 const battleBtn = document.getElementById('battle')
-const tile = 2 //will be used to create an n x n arena
+const tile = 3 //will be used to create an n x n arena
 const totalTiles = tile * tile //will hold the maximum tiles a n x n grid can have
-const botsArr = []
+let botsArr = []
 let isGameRunning = false
 let intervalId = null
 const operator = 'AND'
@@ -41,14 +41,13 @@ const generateArena = () => {
 battleBtn.addEventListener("click", () => {
     //  calcNextMove(botsArr)
     if(!isGameRunning){
-        intervalId = setInterval(startBattle,1000)
+        intervalId = setInterval(startBattle, 1000)
         isGameRunning = true
         battleBtn.innerText = 'Stop'
      }else{
         clearInterval(intervalId)
         isGameRunning = false
         battleBtn.innerText = 'Battle'
-
     }
 })
 
@@ -70,24 +69,12 @@ const checkCollision = () =>{
     return false
 }
 
+
 const handleCollision = () =>{
-    console.log('COLLISION!!!!!!!!!!', botsArr[0].printBotData(), botsArr[1].printBotData())
+    console.log('COLLISION!!!!!!!!!!')
 
     console.log(botsArr[0].printBotData())
     console.log(botsArr[1].printBotData())
-
-    //get value from bot 1
-    //get value from bot 2
-    //opeartion = AND
-    //calculate final value for bot 1 & bot 2
-    
-    //create Map
-    //itterate all bots and we key as position and increase the value of the key
-    //each time we get a psotion
-    //itterate map, if there the is > 1 then there is a repition
-    //once we have the positon, then itterate botsArr and find all keys that
-    //contain the position
-    
 
     const positionMap = new Map()
 
@@ -100,18 +87,101 @@ const handleCollision = () =>{
         }
     } )
     
+    console.log("MAP ", positionMap)
+    
+    //will hold the positions that contain more than 1 bot
+    let colidedPosition 
+
+    //will hold an array of bots that have collided
+    const colidedBots = []
+    
+    //only get the positions where there is more than 1 bots
+    for (const [key, value] of positionMap.entries()) {
+        if(value > 1){
+            colidedPosition = key
+            break
+        }
+    }
+    
+    console.log("Collision position", colidedPosition)
+
+    //find all bots with matching collision position
+    for(let i = 0; i < botsArr.length; i++){
+        if(botsArr[i].position == colidedPosition){
+            colidedBots.push(botsArr[i])
+        }
+    }
+
+    console.log("THESE ARE THE BOTS THAT SHOULD BATTLE ", colidedBots)
+
+    // determine winer & loser
+    // using AND 
+    switch(operator){
+        case "AND":
+            const AND_Result = colidedBots[0].value && colidedBots[1].value
+            if(!AND_Result){
+                console.log("It's a tie")
+            }else{
+                console.log(colidedBots[0].name, "Won!")
+                
+                colidedBots[1].removeFromDom()
+                //remove array
+                botsArr = botsArr.filter(bot => bot.name !== colidedBots[1].name)
+                console.log("UPDATED BOTS ARRAY ", botsArr)
+            }
+            break
+        case "OR":
+            const OR_Result = colidedBots[0].value || colidedBots[1].value
+            if(!OR_Result){
+                console.log("It's a tie")
+            }
+            else{
+                colidedBots[1].removeFromDom()
+                botsArr = botsArr.filter(bot => bot.name !== colidedBots[1].name)
+                console.log("UPDATED BOTS ARRAY ", botsArr)
+            }
+            break
+        case "XOR":
+            const XOR_Result = colidedBots[0].value ^ colidedBots[1].value
+            if(!XOR_Result){
+                console.log("It's a tie")
+            }
+            else{
+                colidedBots[1].removeFromDom()
+                botsArr = botsArr.filter(bot => bot.name !== colidedBots[1].name)
+                console.log("UPDATED BOTS ARRAY ", botsArr)
+            }
+            break
+        case "NOR":
+            const NOR_Result = !(colidedBots[0].value || colidedBots[1].value)
+            if(NOR_Result){
+                colidedBots[1].removeFromDom()
+                botsArr = botsArr.filter(bot => bot.name !== colidedBots[1].name)
+                console.log("UPDATED BOTS ARRAY ", botsArr)
+            }
+            else{
+                 console.log("It's a tie")
+            }
+            break
+    }
 }
 
 const startBattle = () => {
+    
+    botsArr.forEach((bot, i) => {
+    setTimeout(() => {
+      bot.calcNextMove()
 
-    botsArr.forEach(bot => {
-        bot.calcNextMove()
-
-        if(checkCollision()){
-            handleCollision()
-        }
-    })
-
+      const collision = checkCollision()
+      
+      if (collision && botsArr.length == 1) {
+        clearInterval(intervalId)
+        handleCollision()
+        isGameRunning = false
+        battleBtn.innerText = 'Battle'
+      }
+    }, (i + 1) * 500) // Delay the execution of the second bot's move by i seconds
+  })
 }
 
 const generateBots = (numOfBots = 2) => {
@@ -131,7 +201,7 @@ const generateBots = (numOfBots = 2) => {
 
             if(!currPosition.includes(newPosition)){
                 //creates a bot with a new position and direction
-                botsArr.push(new BotClass (newPosition, generateRandomNumber(4), tile, `Bot ${i + 1}`, `bot${i + 1}` ))
+                botsArr.push(new BotClass (newPosition, generateRandomNumber(4), tile, `Bot ${i + 1}`, `bot${i + 1}`, 0 ))
                 isValidPosition = true
             }
         }
