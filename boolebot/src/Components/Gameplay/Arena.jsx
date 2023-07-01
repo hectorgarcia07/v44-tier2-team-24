@@ -8,25 +8,25 @@ import Leaderboard from "./Leaderboard";
 import GameClock from "./GameClock";
 import PlayFromScratchBtn from "./PlayFromScratchBtn";
 import makeCopyBotsArr from "../../utils/makeCopyBotsArr";
-import sweetAlertMixin from "../SweetAlertConfig";
 import IndianaJonesPunch from "../../assets/sfx/indiana-jones-punch_down.mp3";
 import MuteButton from "../../utils/MuteButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
-
+import { calcNextMove } from "./BotObj";
+import { setSavedState } from "../../Redux/savedState";
+import { useSelector, useDispatch } from "react-redux";
+import { renderArena, checkIsAlwaysTie } from "../../utils/arenaUtils";
 
 export default function Arena(props) {
-  const [isValidPosition, setIsValidPosition] = useState(false);
-  const [initialPosition, setInitialPosition] = useState([]);
+  const dispatch = useDispatch()
+  const savedState = useSelector(state => state.savedState)
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [leaderboard, setLeaderboard] = useState({});
   const [currBot, setCurrBot] = useState(0);
   const [collisionLocation, setCollisionLocation] = useState(null);
-  const [isCollision, setIsCollision] = useState(false);
   const [battleLog, setBattleLog] = useState([]);
   const [message, setMessage] = useState(null);
   const [isMuted, setIsMuted] = useState(true)
-
   const [timer, setTimer] = useState({
     min: 0,
     sec: 0,
@@ -36,61 +36,8 @@ export default function Arena(props) {
   const {
     arenaData: { tileNum, speed, operator },
     botsArr,
-    savedState,
     updateBotsArr,
-    saveInitialGameState,
   } = props;
-
-  const arenaStyles = {
-  gridTemplateColumns: `repeat(${tileNum}, 3.5em)`, /*changed grid size*/
-    gridTemplateRows: `repeat(${tileNum}, 3.5em)`,
-
-  };
-
-  const renderArena = () => {
-    const positions = Array.from(
-      { length: tileNum * tileNum },
-      (_, i) => i + 1
-    );
-    return (
-      <div className="arena wrapper" style={arenaStyles}>
-        {positions.map((tilePosition) => {
-          const robotIndex = botsArr.findIndex(
-            (bot) => bot.position === tilePosition
-          );
-          return renderTile(tilePosition, robotIndex);
-        })} 
-      </div>
-    );
-  };
-
-    const renderTile = (tilePosition, robotIndex) => {
-      const robot = robotIndex >= 0 ? botsArr[robotIndex] : null;
-
-      let tileClass = { backgroundColor: "" };
-
-      let text = "";
-
-      if (botsArr.length === 1) {
-        text = "WINNER!";
-      } else if (tilePosition === collisionLocation) {
-        text = message;
-      }
-
-      return (
-        <div
-          style={tileClass}
-          key={tilePosition + 1}
-          data-position={tilePosition}
-          className={`tile  ${
-            tilePosition === collisionLocation ? "crashedText" : ""
-          }`}
-        >
-          {robot ? <img src={robot.botIcon} alt="photo of a robot head" style={{width:"50%"}} />: ""}
-          {text}
-        </div>
-      );
-    };
 
   //make scoreboard
   useEffect(() => {
@@ -108,54 +55,23 @@ export default function Arena(props) {
 
     setLeaderboard(mergedObj);
   }, []);
-
-
+  
   useEffect(() => {
     if (botsArr.length === 1) {
       setIsGameRunning(false);
     }
   }, [botsArr]);
 
-  function checkIsAlwaysTie(){
-    // if all bots have 0, operation: AND, = TIE
-    // if all bots have 0, operation: OR,  = TIE
-    // if all bots have 0, operation: XOR, = TIE
-    // if all bots have 1, operator: NOR, = TIE
-
-    const containAllZeros = botsArr.every(bot => bot.value === 0)
-    const containAllOnes = botsArr.every(bot => bot.value === 1)
-
-    const tieOperators = ((operator === "AND") ||(operator === "OR") || (operator === "XOR") )
-
-    if((tieOperators && containAllZeros )){
-        const message = ""
-        sweetAlertMixin.fire({
-          icon: "info",
-          title: "The current setup will result in an infinite tie ",
-          text: `Reason: 0 ${operator} 0 will always produce a 0`
-        });
-    }
-    else if (containAllOnes && (operator==="NOR")) {
-        sweetAlertMixin.fire({
-          icon: "info",
-          title:
-            "The current bot values and boolean operator will result in an infinite tie",
-          text: `Reason: 1 NOR 1 will always produce a 0`,
-        });
-    }
-  }
-
   useEffect(() => {
-    checkIsAlwaysTie()
+    checkIsAlwaysTie(botsArr, operator)
   },[])
 
   function startGame() {
-    saveInitialGameState(() => makeCopyBotsArr(botsArr));
+    dispatch(setSavedState(makeCopyBotsArr(botsArr)))
     setIsGameRunning((prev) => (prev ? false : true));
   }
 
   ///ChatGPT suggestion
-
   function callSound(sound) {
     if (!isMuted) return new Audio(sound).play();
   }
@@ -170,7 +86,7 @@ export default function Arena(props) {
           setCollisionLocation(() => null);
           const newBotsArr = makeCopyBotsArr(botsArr);
 
-          newBotsArr[currBot].calcNextMove(tileNum);
+          newBotsArr[currBot] = calcNextMove(newBotsArr[currBot], tileNum)
 
           const collisionTileIndex = checkCollision(currBot, newBotsArr);
           console.log(collisionTileIndex)
@@ -275,7 +191,7 @@ export default function Arena(props) {
         <div className="bots_display">
           <BotRoaster botsArr={botsArr} />
         </div>
-        <div className="arena">{renderArena()}</div>
+        <div className="arena">{renderArena(tileNum, botsArr, collisionLocation)}</div>
 
         <div className="mute-clock-start-container">
           <MuteButton isMuted={isMuted} setIsMuted={setIsMuted} />

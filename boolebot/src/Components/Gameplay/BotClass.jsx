@@ -134,7 +134,6 @@ class BotClass {
 
   calcNextMove(tileNum) {
 
-
     this.setNextDirection(tileNum);
 
     switch (this.direction) {

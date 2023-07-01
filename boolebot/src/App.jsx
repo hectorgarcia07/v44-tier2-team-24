@@ -8,10 +8,14 @@ import Arena from "./Components/Gameplay/Arena"
 import CreateArena from './Pages/CreateArena';
 import { useState, useEffect } from "react";
 import bot1 from './assets/bot1.svg'
-
 import ErrorPage from "./Pages/ErrorPage";
 
+import { setSavedState } from "./Redux/savedState";
+import { useSelector, useDispatch } from "react-redux";
+
 function App() {
+  const savedState = useSelector((state) => state.savedState)
+  const dispatch = useDispatch()
 
 //creating botsArray to be passed on as props to child components
 const [arenaData, setArenaData] = useState({
@@ -19,7 +23,6 @@ const [arenaData, setArenaData] = useState({
   speed: 500,
   operator: "AND",
 });
-const [savedState, setSavedState] = useState([])
 
 const [botsArr, setBotsArr] = useState([]);
 
@@ -32,17 +35,13 @@ const [botsData, setBotsData] = useState({
   botIcon: bot1
 });
 
-const saveInitialGameState = (currentGameState) =>{
-    setSavedState(currentGameState)
-}
-
 // handler function to get arena info
 const getArenaInfo = (newArenaInfo)=>{
   setArenaData(newArenaInfo);
 }
 
 const updateBotsArr = (newBotsArr)=>{
-    setBotsArr(newBotsArr)
+  setBotsArr(newBotsArr)
 }
 
 const updateBotsData = (newState)=>{
@@ -60,7 +59,7 @@ const globalReset = () => {
     speed: 500,
     operator: "AND",
   })
-  setSavedState([])
+  dispatch(setSavedState([]))
   setBotsData({
     name: "",
     value: 0,
@@ -74,8 +73,8 @@ const globalReset = () => {
 
 useEffect(()=>{
     setBotsArr([])
-    setSavedState([])
-},[arenaData.tileNum])
+    dispatch(setSavedState([]))
+  },[arenaData.tileNum])
 
 
 // This is an array of the current route/location
@@ -122,10 +121,8 @@ const deleteBotFromArray = (name)=>{
           path: "/arena",
           element: (
             <Arena
-              savedState={savedState}
               botsArr={botsArr}
               updateBotsArr={updateBotsArr}
-              saveInitialGameState={saveInitialGameState}
               arenaData={arenaData}
             />
           ),
