@@ -10,10 +10,19 @@ export const arenaData = createSlice({
         },
     },
     reducers: {
-        
+        resetArenaData: (state, action) => {
+            state.arenaData = {
+                tileNum: 3,
+                speed: 500,
+                operator: "AND",
+            }
+        },
+        setArenaData: ( state, action ) => {
+            state.arenaData = action.payload
+        }
     }
 })
 
-export const { updateArenaData, updateSavedState } = arenaData.actions
+export const { resetArenaData, setArenaData } = arenaData.actions
 
 export default arenaData.reducer

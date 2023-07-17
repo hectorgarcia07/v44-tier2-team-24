@@ -1,15 +1,21 @@
 import makeCopyBotsArr from "./makeCopyBotsArr";
 import { calcNextMove } from "../Components/Gameplay/BotObj";
 import { checkCollision } from "./collisionLogic";
+import { useDispatch } from "react-redux";
+import { setPlayers } from "../Redux/players"
 
-export function botMovement(setCollisionLocation, botsArr, currBot, tileNum, ){
+///ChatGPT suggestion
+function callSound(sound) {
+  if (!isMuted) return new Audio(sound).play();
+}
+
+export function botMovement( setCollisionLocation, botsArr, currBot, tileNum ){
+  const dispatch = useDispatch()
+
     setCollisionLocation(() => null);
     const newBotsArr = makeCopyBotsArr(botsArr);
-
     newBotsArr[currBot] = calcNextMove(newBotsArr[currBot], tileNum)
-
-    const collisionTileIndex = checkCollision(currBot, newBotsArr);  
-
+    const collisionTileIndex = checkCollision(currBot, newBotsArr)
     const didCollide = collisionTileIndex !== -1;
     
     if (didCollide) {
@@ -20,7 +26,6 @@ export function botMovement(setCollisionLocation, botsArr, currBot, tileNum, ){
         operator,
         newBotsArr[currBot].name,
       );
-
       
       if (!collidedBotsArr.isATie) {
         setMessage("💥💥💥");
@@ -80,5 +85,5 @@ export function botMovement(setCollisionLocation, botsArr, currBot, tileNum, ){
       );
     }
 
-    updateBotsArr(newBotsArr);
+    dispatch(setPlayers(newBotsArr))
 }

@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import sweetAlertMixin from '../Components/SweetAlertConfig';
 import { Link } from "react-router-dom";
 import generateRandomNumber from '../utils/randomNum';
-import BotClass from '../Components/Gameplay/BotClass';
 import IconPalette from './IconPalette'
 import BotRoaster from '../Components/Gameplay/BotRoaster';
 import useAutoFocus from '../Components/hooks/useAutoFocus';
@@ -11,6 +10,8 @@ import makeCopyBotsArr from '../utils/makeCopyBotsArr';
 import getOccupiedPos from '../utils/getOccupiedPos';
 import generateUniquePos from '../utils/generateUniquePos';
 import { Navigate, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { addPlayer } from '../Redux/players';
 
 import bot1 from '../assets/bot1.svg'
 import bot2 from '../assets/bot2.svg'
@@ -21,32 +22,15 @@ import bot6 from '../assets/bot6.svg'
 import bot7 from '../assets/bot7.svg'
 import bot8 from '../assets/bot8.svg'
 import Container from '../Components/Layout/Container';
-  
 
-export default function BotsInfo(props) {
+export default function BotsInfo({ updateBotsData, botsData }) {
+  const { players, arenaData } = useSelector((state) => state)
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const location = useLocation();
   const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
-  const {
-    botsData,
-    updateBotsData,
-    botsArr,
-    arenaData,
-    updateBotsArr,
-    deleteBotFromArray
-  } = props;
   const tileNum = arenaData.tileNum
-  const [direction, setDirection] = useState({
-    "1": "North",
-    "2": "South",
-    "3": "West",
-    "4": "East",
-    "5": "NE",
-    "6": "NW",
-    "7": "SE",
-    "8": "SW"
-  })
-  const inputAutoFocus = useAutoFocus(botsArr);
+  const inputAutoFocus = useAutoFocus(players);
   const [iconPalette, setIconPalette] = useState([
     {
       url: bot1,
@@ -95,39 +79,36 @@ export default function BotsInfo(props) {
 
 // Generic change handler
 function handleChange(e){
-    const changedField = e.target.name;
-    const newValue = e.target.value;
-    let botsDataCopy = {...botsData}
-    let isSameName = botsArr.some((bot) => bot.name === newValue)
+  const changedField = e.target.name;
+  const newValue = e.target.value;
+  let botsDataCopy = {...botsData}
+  let isSameName = players.some((bot) => bot.name === newValue)
 
-    if (changedField === "name" && isSameName ) {
-      setIsValid( prev => {
-        return { name: isSameName}
-      })
+  if (changedField === "name" && isSameName ) {
+    setIsValid( prev => {
+      return { name: isSameName}
+    })
 
-      // Display an error message or perform necessary actions
-      sweetAlertMixin.fire({
-        icon: "error",
-        title: "Oops...",
-        text: `* Each Bots should have unique names`,
-        
-      });
-
-    }
-    else{
-      updateBotsData({...botsDataCopy, [changedField]: newValue})
-    }
+    // Display an error message or perform necessary actions
+    sweetAlertMixin.fire({
+      icon: "error",
+      title: "Oops...",
+      text: `* Each Bots should have unique names`,  
+    });
+  }
+  else{
+    updateBotsData({...botsDataCopy, [changedField]: newValue})
+  }
 }
 
   //form event- submit
   const handleSubmit = (event) => {
     event.preventDefault();
     
-    let occupiedPositions = getOccupiedPos(botsArr, tileNum)
+    let occupiedPositions = getOccupiedPos()
     let pos = occupiedPositions.length
-      ? generateUniquePos(occupiedPositions, tileNum)
+      ? generateUniquePos(occupiedPositions)
       : generateRandomNumber(tileNum * tileNum); 
-
     
     if(pos === -1){
       setIsBotsArrayFull(true)
@@ -137,24 +118,24 @@ function handleChange(e){
         title: "Reached full arena capacity ",
         text: `Can't add more bots to the arena`,
       });
-
     }
     else{
       setIsBotsArrayFull(false);
-      console.log(iconSelected);
-      let botsArrCopy = makeCopyBotsArr(botsArr);
-      const newBot = new BotClass(
-        pos,
-        Number(botsData.direction),
-        botsData.name,
-        Number(botsData.value),
-        botsData.botIcon
-      );
+      let botsArrCopy = makeCopyBotsArr(players);
+      const newBot = {
+        position: pos,
+        direction: Number(botsData.direction),
+        name: botsData.name,
+        value: Number(botsData.value),
+        botIcon: botsData.botIcon,
+        wins: 0,
+        loses: 0,
+      }
+
       const duplicateBot = botsArrCopy.some((bot) => bot.name === newBot.name);
 
       if (!duplicateBot) {
-
-        const newIconPallet = [...iconPalette]
+        const newIconPallet = [ ...iconPalette ]
         newIconPallet[iconSelected].isSelected = true;
 
         const newIndex = newIconPallet.findIndex((icon) => !icon.isSelected);
@@ -162,11 +143,9 @@ function handleChange(e){
         setIconPalette((prev) => {
           return newIconPallet;
         });
-        console.log(iconSelected);
         const isAllIconSelected = newIndex !== -1;
 
         if (isAllIconSelected) {
-          let botsDataCopy = { ...botsData };
           updateBotsData({
             name: "",
             value: 0,
@@ -176,7 +155,7 @@ function handleChange(e){
             botIcon: iconPalette[newIndex].url,
           });
         }
-        updateBotsArr([...botsArrCopy, newBot]);
+        dispatch(addPlayer([...botsArrCopy, newBot]))
       }
     }    
   };
@@ -200,8 +179,6 @@ function handleChange(e){
 
         <div className="bots_display">
           <BotRoaster
-            botsArr={botsArr}
-            deleteBotFromArray={deleteBotFromArray}
             currentLocation={location.pathname}
             iconPalette={iconPalette}
             updateIconPalette={updateIconPalette}
@@ -307,9 +284,7 @@ function handleChange(e){
           <Link to="/createArena">
             <button className='navigate-btn'>← Back</button>
           </Link>
-          
             <button className='navigate-btn' onClick={handleEnterArena}>Battle Ground →</button>
-          
         </div>
       </Container>
     </div>

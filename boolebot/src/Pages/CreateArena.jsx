@@ -2,74 +2,51 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Container from "../Components/Layout/Container"
 import sweetAlertMixin from "../Components/SweetAlertConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { setArenaData } from "../Redux/arenaData";
 
-
-export default function BotsInfo(props) {
-  const {arenaData, updateArenaData} = props
-  
+export default function BotsInfo() {
+  const { arenaData } = useSelector( state => state )
+  const dispatch = useDispatch()
   // Checks windows width
   let width = window.innerWidth;
-  
   
   // Generic change handler
   function handleChange(e) {
     const changedField = e.target.name;
     const newValue = e.target.value;
 
-    let arenaDataCopy = {...arenaData}
+    let arenaDataCopy = { ...arenaData }
 
-    if(changedField === "tileNum"){
-      updateArenaData({
-        ...arenaDataCopy, tileNum: Number(newValue)
-      })
-
-    }
-    else if(changedField === "speed"){
-      updateArenaData({
-        ...arenaDataCopy, speed: Number(newValue)
-      })
-
+    dispatch(setArenaData())
+    if(changedField === "tileNum" || changedField === "speed" ){
+      arenaDataCopy[changedField] = Number(newValue)
     }
     else{
       arenaDataCopy[changedField] = newValue;
-      updateArenaData({...arenaDataCopy})
     }
+
+    dispatch(setArenaData(arenaDataCopy))
   }
 
   //form event- submit
   const handleSubmit = (event) => {
     event.preventDefault();
-    
   }
 
-  const [expandedBots, setExpandedBots] = useState([]);
-
-  const toggleBotExpansion = (index) => {
-    setExpandedBots((prevExpandedBots) => {
-      const newExpandedBots = [...prevExpandedBots];
-      newExpandedBots[index] = !newExpandedBots[index];
-      return newExpandedBots;
-    });
-  };
-
   return (
-
   <div className="createArena">
     <Container>
     <h2>Board Controls</h2>
-
-    
-
       <div className="arena-input-form">
-        
         <form onSubmit={handleSubmit}>
           <div>
-              
-            <label htmlFor="speed"><span className="question-space">
-              Movement Speed</span><button
-                  className="question-button"
-                  onClick={(e) => {
-                    e.preventDefault();
+            <label htmlFor="speed">
+              <span className="question-space">Movement Speed</span>
+              <button
+                className="question-button"
+                onClick={(e) => { 
+                  e.preventDefault();
                     sweetAlertMixin.fire({
                       title: 'Movement Speed',
                       text: 'The lower the number the faster the bot will go! Drag the circle all the way to the right for the fastest speed',
@@ -90,7 +67,7 @@ export default function BotsInfo(props) {
                 onChange={handleChange}
                 required
               />
-              <span>{` ${4 - arenaData.speed/1000}sec`}</span>
+              <span>{`${4 - arenaData.speed/1000}sec`}</span>
             </label>
           </div>
           <div>
@@ -175,15 +152,12 @@ export default function BotsInfo(props) {
                 <option value="NOR">NOR</option>
                 <option value="XOR">XOR</option>
               </select>
-              
             </label>
           </div>
-          
           <Link to="/createBot" className="next_btn">
             <button type="submit">Next</button>
           </Link>
         </form>
-        
       </div>
       </Container>
     </div>

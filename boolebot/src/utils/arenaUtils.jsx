@@ -1,12 +1,15 @@
-const arenaStyles = {
+import { useSelector, useDispatch } from "react-redux";
+
+export const renderArena = (botsArr, collisionLocation) => {
+  const { tileNum } = useSelector((state) => state.arenaData)
+  const arenaStyles = {
     gridTemplateColumns: `repeat(${tileNum}, 3.5em)`, /*changed grid size*/
     gridTemplateRows: `repeat(${tileNum}, 3.5em)`,
-};
+  };
 
-export const renderArena = (tileNum, botsArr, collisionLocation) => {
-    const positions = Array.from(
-        { length: tileNum * tileNum },
-        (_, i) => i + 1
+  const positions = Array.from(
+    { length: tileNum * tileNum },
+      (_, i) => i + 1
     );
     return (
         <div className="arena wrapper" style={arenaStyles}>

@@ -1,10 +1,13 @@
 import React from 'react'
+import { useDispatch } from 'react-redux';
+import { resetPlayers } from '../../Redux/players';
 import { Link } from 'react-router-dom';
 
-export default function PlayFromScratchBtn({updateBotsArr}) {
-    
+export default function PlayFromScratchBtn() {
+  const dispatch = useDispatch()
+
   function restartGame() {
-    updateBotsArr([])
+    dispatch(resetPlayers())
   }
   
     return (

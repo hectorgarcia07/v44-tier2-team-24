@@ -1,16 +1,17 @@
-import React from 'react'
+import { useSelector } from "react-redux";
 
-export default function getOccupiedPos(botsArr, tileNum) {
-    let occupiedPositions = []
+export default function getOccupiedPos() {
+  const { players, arenaData } = useSelector((state) => state)
+  const { tileNum } = arenaData
+  let occupiedPositions = []
 
-    botsArr.forEach(bot => {
-        if(bot.position){
-            if (bot.position > 0 && bot.position <= tileNum * tileNum){
-               if (!occupiedPositions.includes(bot.position)){
-                occupiedPositions.push(bot.position)
-               }
-            }
-
+  players.forEach(bot => {
+    if(bot.position){
+      if (bot.position > 0 && bot.position <= tileNum * tileNum){
+        if (!occupiedPositions.includes(bot.position)){
+          occupiedPositions.push(bot.position)
+        }
+      }
             if (bot.position - tileNum > 0) {
                 if (!occupiedPositions.includes(bot.position - tileNum))
                   {
@@ -62,9 +63,7 @@ export default function getOccupiedPos(botsArr, tileNum) {
                 
                 occupiedPositions.push(bot.position + (tileNum - 1));
             }
-
           }
-          
         }
       })
   

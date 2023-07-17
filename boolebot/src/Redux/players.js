@@ -3,24 +3,24 @@ import { createSlice } from "@reduxjs/toolkit"
 export const playersSlice = createSlice({
     name: "players",
     initialState: {
-        botsArr: [],
+        players: [],
     },
     reducers: {
-        setBotsArr: (state, action) => {
-            state.botsArr = action.payload
+        setPlayers: (state, action) => {
+            state.players = action.payload
         },
         resetPlayers: (state) => {
-            state.botsArr = []
+            state.players = []
         },
         removePlayer: (state, action) => {
-            state.botsArr = state.filter((bot,i)=> bot.name !== action.payload)
+            state.players = state.filter((bot,i)=> bot.name !== action.payload)
         },
         addPlayer: (state, action) => {
-            state.botsArr = [...state, action.payload]
+            state.players = [...state, action.payload]
         },
     }
 })
 
-export const { setBotsArr, resetPlayers, removePlayer, addPlayer } = playersSlice.actions
+export const { setPlayers, resetPlayers, removePlayer, addPlayer } = playersSlice.actions
 
 export default playersSlice.reducer

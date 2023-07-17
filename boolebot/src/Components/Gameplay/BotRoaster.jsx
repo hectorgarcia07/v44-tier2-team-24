@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from "react-redux";
+import { removePlayer } from '../../Redux/players';
 
 export default function BotRoaster({
-  botsArr,
-  deleteBotFromArray,
   currentLocation,
   iconPalette,
   updateIconPalette,
   setIsBotsArrayFull,
 }) {
+  const players = useSelector( state => state.players )
+  const dispatch = useDispatch()
+
+
   const handleDelete = (botName) => {
     const iconPaletteCopy = [...iconPalette];
 
-    let index = botsArr.findIndex((bot) => bot.name === botName);
+    let index = players.findIndex((bot) => bot.name === botName);
     let iconPaletteIndex = iconPalette.findIndex(
-      (icon) => icon.url === botsArr[index].botIcon
+      (icon) => icon.url === players[index].botIcon
     );
     iconPaletteCopy[iconPaletteIndex].isSelected = false;
 
     updateIconPalette(iconPaletteCopy);
-    deleteBotFromArray(botName);
+    dispatch(removePlayer(botName))
     setIsBotsArrayFull(false);
   };
 
@@ -34,8 +38,8 @@ export default function BotRoaster({
 
   return (
     <div className="createdBots">
-      {botsArr &&
-        botsArr.map((bot, index) => (
+      {players &&
+        players.map((bot, index) => (
           <div className={`showBot ${bot.name}`} key={index}>
             <div className="botIcon_wrapper">
               <img src={bot.botIcon} alt="photo of a robot head" />

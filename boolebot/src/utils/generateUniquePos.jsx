@@ -1,7 +1,9 @@
-import React from 'react'
 import generateRandomNumber from './randomNum';
+import { useSelector } from "react-redux";
 
-export default function generateUniquePos(occupiedPositions, tileNum) {
+export default function generateUniquePos(occupiedPositions) {
+  const { tileNum } = useSelector((state) => state.arenaData)
+
   //generate a number between 1 to tileNum** but not any num in the occupiedPosition arr
   let isValid = false;
   let position;

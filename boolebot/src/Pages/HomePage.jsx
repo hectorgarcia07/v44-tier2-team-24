@@ -4,7 +4,6 @@ import sweetAlertMixin from "../Components/SweetAlertConfig";
 import { Link } from "react-router-dom";
 import botImage from "../assets/booleBotsHome.png";
 
-
 export default function Homepage({ globalReset }) {
   const showInstructions = () => {
     sweetAlertMixin.fire({
