@@ -1,8 +1,6 @@
 import { useSelector } from "react-redux";
 
-export default function getOccupiedPos() {
-  const { players, arenaData } = useSelector((state) => state)
-  const { tileNum } = arenaData
+export default function getOccupiedPos( players, arenaData, tileNum ) {
   let occupiedPositions = []
 
   players.forEach(bot => {

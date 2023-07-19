@@ -7,6 +7,8 @@ export const renderArena = (botsArr, collisionLocation) => {
     gridTemplateRows: `repeat(${tileNum}, 3.5em)`,
   };
 
+  console.log("tileNum", tileNum)
+
   const positions = Array.from(
     { length: tileNum * tileNum },
       (_, i) => i + 1

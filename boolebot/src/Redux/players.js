@@ -16,7 +16,10 @@ export const playersSlice = createSlice({
             state.players = state.filter((bot,i)=> bot.name !== action.payload)
         },
         addPlayer: (state, action) => {
-            state.players = [...state, action.payload]
+            console.log("State", state.players)
+            console.log("Payload", action)
+            
+            state.players = action.payload
         },
     }
 })

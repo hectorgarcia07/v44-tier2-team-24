@@ -8,9 +8,11 @@ export default function BotRoaster({
   updateIconPalette,
   setIsBotsArrayFull,
 }) {
-  const players = useSelector( state => state.players )
-  const dispatch = useDispatch()
+  const { players } = useSelector( state => state.players )
+  
+  console.log("Players", players)
 
+  const dispatch = useDispatch()
 
   const handleDelete = (botName) => {
     const iconPaletteCopy = [...iconPalette];

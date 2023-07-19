@@ -3,7 +3,7 @@ import '../../SASS/Partials/_leaderBoard.scss'
 import { useSelector } from "react-redux";
 
 export default function Leaderboard({ leaderboard }) {
-  const players = useSelector( state => state.players )
+  const { players } = useSelector( state => state.players )
 
     const [winningScore, setWinningScore] = useState(null)
 
@@ -31,14 +31,16 @@ export default function Leaderboard({ leaderboard }) {
     }
     
     useEffect(()=>{
-        const winningArr = players.sort(function(a, b){
+      const playerCopy = [...players]
+      console.log(playerCopy, "player copy")
+        const winningArr = playerCopy.sort(function(a, b){
           return b.wins - a.wins
         })
 
         const winningBot = winningArr[0]
         
         if(winningBot){
-          if(players.length < (Object.keys(leaderboard).length)){
+          if(playerCopy.length < (Object.keys(leaderboard).length)){
             setWinningScore(winningBot.wins)
           }
         }

@@ -15,7 +15,7 @@ import { resetArenaData } from "./Redux/arenaData";
 import { resetPlayers } from "./Redux/players";
 
 function App() {
-  const { arenaData } = useSelector((state) => state)
+  const arenaData = useSelector((state) => state.arenaData)
   const dispatch = useDispatch()
   const [botsData, setBotsData] = useState({
     name: "",

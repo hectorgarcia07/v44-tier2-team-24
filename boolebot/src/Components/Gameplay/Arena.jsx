@@ -19,9 +19,9 @@ import { setPlayers } from "../../Redux/players";
 
 export default function Arena(props) {
   const dispatch = useDispatch()
-  const { players, arenaData} = useSelector(state => state)
+  const { players } = useSelector(state => state.players)
+  const { arenaData } = useSelector(state => state.arenaData)
   const { tileNum, speed, operator } = arenaData
-  
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [leaderboard, setLeaderboard] = useState({});
   const [currBot, setCurrBot] = useState(0);
@@ -33,7 +33,8 @@ export default function Arena(props) {
     sec: 0,
     running: false,
   });
-
+  console.log("Players", players)
+  
   //make scoreboard
   useEffect(() => {
     const arrayofObj = players.map((prev) => {

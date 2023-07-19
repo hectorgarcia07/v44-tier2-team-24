@@ -1,7 +1,5 @@
 import { useRef, useEffect } from "react";
 
-
-
 const useAutoFocus = (botsArr) => {
   const inputRef = useRef(null);
 

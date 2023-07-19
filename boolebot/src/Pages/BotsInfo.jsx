@@ -24,12 +24,18 @@ import bot8 from '../assets/bot8.svg'
 import Container from '../Components/Layout/Container';
 
 export default function BotsInfo({ updateBotsData, botsData }) {
-  const { players, arenaData } = useSelector((state) => state)
+  const { arenaData } = useSelector( (state) => state.arenaData )
+  const { players } = useSelector( (state) => state.players )
+
   const dispatch = useDispatch()
   const navigate = useNavigate();
   const location = useLocation();
   const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
   const tileNum = arenaData.tileNum
+
+  console.log(arenaData)
+
+  
   const inputAutoFocus = useAutoFocus(players);
   const [iconPalette, setIconPalette] = useState([
     {
@@ -105,7 +111,7 @@ function handleChange(e){
   const handleSubmit = (event) => {
     event.preventDefault();
     
-    let occupiedPositions = getOccupiedPos()
+    let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
     let pos = occupiedPositions.length
       ? generateUniquePos(occupiedPositions)
       : generateRandomNumber(tileNum * tileNum); 
@@ -161,7 +167,7 @@ function handleChange(e){
   };
 
   function handleEnterArena(){
-    if(botsArr.length === 1){
+    if(players.length === 1){
       sweetAlertMixin.fire({
         icon: "error",
         title: "Not enough bot in the arena",

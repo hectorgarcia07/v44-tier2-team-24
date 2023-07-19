@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setArenaData } from "../Redux/arenaData";
 
 export default function BotsInfo() {
-  const { arenaData } = useSelector( state => state )
+  const { arenaData } = useSelector( state => state.arenaData )
   const dispatch = useDispatch()
   // Checks windows width
   let width = window.innerWidth;
