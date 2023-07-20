@@ -1,16 +1,16 @@
 import makeCopyBotsArr from "./makeCopyBotsArr";
 import { calcNextMove } from "../Components/Gameplay/BotObj";
 import { checkCollision } from "./collisionLogic";
-import { useDispatch } from "react-redux";
 import { setPlayers } from "../Redux/players"
+import IndianaJonesPunch from "../assets/sfx/indiana-jones-punch_down.mp3"
 
 ///ChatGPT suggestion
 function callSound(sound) {
   if (!isMuted) return new Audio(sound).play();
 }
 
-export function botMovement( setCollisionLocation, botsArr, currBot, tileNum ){
-  const dispatch = useDispatch()
+export function botMovement( setCollisionLocation, botsArr, currBot, tileNum, dispatch ){
+  console.log("BOTSARR", botsArr)
 
     setCollisionLocation(() => null);
     const newBotsArr = makeCopyBotsArr(botsArr);

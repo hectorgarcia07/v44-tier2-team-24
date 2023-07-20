@@ -1,13 +1,12 @@
-import { useSelector, useDispatch } from "react-redux";
+import sweetAlertMixin from "../Components/SweetAlertConfig";
 
-export const renderArena = (botsArr, collisionLocation) => {
-  const { tileNum } = useSelector((state) => state.arenaData)
+export const renderArena = (botsArr, collisionLocation, tileNum) => {
   const arenaStyles = {
     gridTemplateColumns: `repeat(${tileNum}, 3.5em)`, /*changed grid size*/
     gridTemplateRows: `repeat(${tileNum}, 3.5em)`,
   };
 
-  console.log("tileNum", tileNum)
+  console.log("tileNum", botsArr)
 
   const positions = Array.from(
     { length: tileNum * tileNum },
@@ -19,7 +18,7 @@ export const renderArena = (botsArr, collisionLocation) => {
             const robotIndex = botsArr.findIndex(
               (bot) => bot.position === tilePosition
             );
-            return renderTile(tilePosition, robotIndex, collisionLocation);
+            return renderTile(tilePosition, robotIndex, botsArr, collisionLocation);
           })} 
         </div>
       );

@@ -7,7 +7,6 @@ import Leaderboard from "./Leaderboard";
 import GameClock from "./GameClock";
 import PlayFromScratchBtn from "./PlayFromScratchBtn";
 import makeCopyBotsArr from "../../utils/makeCopyBotsArr";
-import IndianaJonesPunch from "../../assets/sfx/indiana-jones-punch_down.mp3";
 import MuteButton from "../../utils/MuteButton";
 import { botMovement } from "../../utils/gameUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -71,8 +70,12 @@ export default function Arena(props) {
     let intervalId;
 
     if (isGameRunning) {
+      console.log("GAme movement")
       intervalId = setInterval(
-        () => botMovement(setCollisionLocation, players, currBot, tileNum), 
+        () => {
+          console.log("PLAYERSSS", players)
+          botMovement(setCollisionLocation, players, currBot, tileNum, dispatch)
+        }, 
         collisionLocation ? (4000 - speed) + 1000 : 4000 - speed
       );
     }
@@ -101,7 +104,7 @@ export default function Arena(props) {
         <div className="bots_display">
           <BotRoaster currentLocation iconPalette updateIconPalette />
         </div>
-        <div className="arena">{renderArena(players, collisionLocation)}</div>
+        <div className="arena">{renderArena(players, collisionLocation, tileNum)}</div>
 
         <div className="mute-clock-start-container">
           <MuteButton isMuted={isMuted} setIsMuted={setIsMuted} />

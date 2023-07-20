@@ -35,7 +35,6 @@ export default function BotsInfo({ updateBotsData, botsData }) {
 
   console.log(arenaData)
 
-  
   const inputAutoFocus = useAutoFocus(players);
   const [iconPalette, setIconPalette] = useState([
     {
@@ -113,7 +112,7 @@ function handleChange(e){
     
     let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
     let pos = occupiedPositions.length
-      ? generateUniquePos(occupiedPositions)
+      ? generateUniquePos(occupiedPositions, tileNum)
       : generateRandomNumber(tileNum * tileNum); 
     
     if(pos === -1){
