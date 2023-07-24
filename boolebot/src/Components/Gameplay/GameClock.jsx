@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react'
 
 export default function GameClock(props) {
-
   const { isGameRunning, timer, setTimer } = props
   
   function incrementTime(){
-    
     setTimer(prev => {
       let timerCopy = {...prev}
 

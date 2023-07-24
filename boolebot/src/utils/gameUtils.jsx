@@ -5,16 +5,16 @@ import { setPlayers } from "../Redux/players"
 import IndianaJonesPunch from "../assets/sfx/indiana-jones-punch_down.mp3"
 
 ///ChatGPT suggestion
-function callSound(sound) {
+export function callSound(sound, isMuted) {
   if (!isMuted) return new Audio(sound).play();
 }
 
-export function botMovement( setCollisionLocation, botsArr, currBot, tileNum, dispatch ){
-  console.log("BOTSARR", botsArr)
-
+export default function botMovement( setCollisionLocation, botsArr, currBot, tileNum, dispatch, isMuted ){
     setCollisionLocation(() => null);
     const newBotsArr = makeCopyBotsArr(botsArr);
+
     newBotsArr[currBot] = calcNextMove(newBotsArr[currBot], tileNum)
+
     const collisionTileIndex = checkCollision(currBot, newBotsArr)
     const didCollide = collisionTileIndex !== -1;
     
@@ -34,7 +34,7 @@ export function botMovement( setCollisionLocation, botsArr, currBot, tileNum, di
           ...prev,
           <div>
             {`${collidedBotsArr.bots[0].name} (👑) vs. ${collidedBotsArr.bots[1].name} (😭)`}
-          </div>,
+          </div>
         ]);
         setLeaderboard((prev) => {
           return {

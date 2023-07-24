@@ -1,8 +1,4 @@
-import BotClass from "../Components/Gameplay/BotClass";
-
 const checkCollision = (currBot, botsArr) => {
-  const locationArr = botsArr.map((bot) => bot.position);
-
   const index = botsArr.findIndex(bot => {
     const notCurrentBot = bot.name !== botsArr[currBot].name; 
 
@@ -10,19 +6,12 @@ const checkCollision = (currBot, botsArr) => {
   })
   
   if(index !== -1){
-    console.log("Collided bot ", botsArr[index]);
-    console.log("CURR BOT", currBot)
     return botsArr[index].position
   }
   return -1
 };
 
-const handleCollision = (botsArr,
-              operator,
-              currBotName,
-            ) => {
-
-
+const handleCollision = (botsArr, operator, currBotName) => {
   const positionMap = new Map();
 
   botsArr.forEach((bot) => {
@@ -72,7 +61,6 @@ const handleCollision = (botsArr,
       // (a && !b) || (!a && b)
       const XOR_Result = colidedBots[0].value === colidedBots[1].value ? true : false
 
-      console.log("XOR RESUT", XOR_Result)
       return updateScore(!XOR_Result, colidedBots[0], colidedBots[1]);
       break;
     case "NOR":
@@ -83,28 +71,11 @@ const handleCollision = (botsArr,
 };
 
 const updateScore = (result, botOne, botTwo) => {
-  console.log("SET MESSAGE UP", result, botOne, botTwo)
   if (result) {
-    const botOneClone = new BotClass(
-      botOne.position,
-      botOne.direction,
-      botOne.name,
-      botOne.colorClass,
-      botOne.value,
-      botOne.wins + 1,
-      botOne.loses,
-    );
+    botOne.wins = botOne.wins + 1
+    botTwo.loses = botTwo.loses + 1
 
-    const botTwoClone = new BotClass(
-      botTwo.position,
-      botTwo.direction,
-      botTwo.name,
-      botTwo.colorClass,
-      botTwo.value,
-      botTwo.wins,
-      botTwo.loses + 1,
-    );    
-    return { isATie : false, bots: [botOneClone, botTwoClone]}
+    return { isATie : false, bots: [botOne, botTwo]}
   } else {
     return { isATie : true, bots: [botOne, botTwo]}
   }

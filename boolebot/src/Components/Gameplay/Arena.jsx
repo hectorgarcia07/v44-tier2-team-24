@@ -8,17 +8,21 @@ import GameClock from "./GameClock";
 import PlayFromScratchBtn from "./PlayFromScratchBtn";
 import makeCopyBotsArr from "../../utils/makeCopyBotsArr";
 import MuteButton from "../../utils/MuteButton";
-import { botMovement } from "../../utils/gameUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPause, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { setSavedState } from "../../Redux/savedState";
 import { useSelector, useDispatch } from "react-redux";
 import { renderArena, checkIsAlwaysTie } from "../../utils/arenaUtils";
 import { setPlayers } from "../../Redux/players";
+import { calcNextMove } from "./BotObj";
+import { checkCollision, handleCollision } from "../../utils/collisionLogic";
+import { callSound }  from "../../utils/gameUtils.jsx"
+import IndianaJonesPunch from "../../assets/sfx/indiana-jones-punch_down.mp3"
 
 export default function Arena(props) {
   const dispatch = useDispatch()
   const { players } = useSelector(state => state.players)
+  const { savedState } = useSelector(state => state.savedState)
   const { arenaData } = useSelector(state => state.arenaData)
   const { tileNum, speed, operator } = arenaData
   const [isGameRunning, setIsGameRunning] = useState(false);
@@ -27,12 +31,12 @@ export default function Arena(props) {
   const [collisionLocation, setCollisionLocation] = useState(null);
   const [battleLog, setBattleLog] = useState([]);
   const [isMuted, setIsMuted] = useState(true)
+  const [message, setMessage] = useState(null)
   const [timer, setTimer] = useState({
     min: 0,
     sec: 0,
     running: false,
   });
-  console.log("Players", players)
   
   //make scoreboard
   useEffect(() => {
@@ -70,18 +74,94 @@ export default function Arena(props) {
     let intervalId;
 
     if (isGameRunning) {
-      console.log("GAme movement")
+      console.log("game is running")
+
       intervalId = setInterval(
         () => {
-          console.log("PLAYERSSS", players)
-          botMovement(setCollisionLocation, players, currBot, tileNum, dispatch)
+          console.log("Players", players[currBot])
+
+          setCollisionLocation(() => null)
+          const newPlayer = players.map( bot => {
+            return { ...bot }
+          })
+          //newBotsArr
+
+          calcNextMove(newPlayer[currBot], tileNum)
+          console.log("New move", newPlayer[currBot])
+
+          const collisionTileIndex = checkCollision(currBot, newPlayer);
+
+          const didCollide = collisionTileIndex !== -1;
+
+          if (didCollide) {
+            setCollisionLocation(() => collisionTileIndex);
+
+            const collidedBotsArr = handleCollision(
+              newPlayer,
+              operator,
+              newPlayer[currBot].name,
+            );
+
+            if (!collidedBotsArr.isATie) {
+              setMessage("💥💥💥");
+              callSound(IndianaJonesPunch, isMuted);
+              setBattleLog((prev) => [
+                ...prev,
+                <div>
+                  {`${collidedBotsArr.bots[0].name} (👑) vs. ${collidedBotsArr.bots[1].name} (😭)`}
+                </div>,
+              ]);
+
+              setLeaderboard((prev) => {
+                return {
+                  ...prev,
+                  [collidedBotsArr.bots[0].name]: {
+                    wins: collidedBotsArr.bots[0].wins,
+                    loses: collidedBotsArr.bots[0].loses,
+                  },
+                  [collidedBotsArr.bots[1].name]: {
+                    wins: collidedBotsArr.bots[1].wins,
+                    loses: collidedBotsArr.bots[1].loses,
+                  },
+                };
+              });
+
+              let loserIndex = newPlayer.findIndex(
+                (bot) => bot.name === collidedBotsArr.bots[1].name
+              );
+              newPlayer.splice(loserIndex, 1);
+            }
+            else {
+              setMessage("TIE!")
+              setBattleLog((prev) => [
+                ...prev,
+                <div>
+                  {`${collidedBotsArr.bots[0].name} (🎀) vs. ${collidedBotsArr.bots[1].name} (🎀)`}
+                </div>,
+              ]);
+            }
+          } 
+
+          if (newPlayer.length < players.length) {
+            setCurrBot((prev) => {
+              if (prev === 0) {
+                return prev + 1;
+              }
+              return prev - 1;
+            });
+          } else {
+            setCurrBot((prev) =>
+              prev >= newPlayer.length - 1 ? 0 : prev + 1
+            );
+          }
+
+          dispatch( setPlayers(newPlayer) )
         }, 
         collisionLocation ? (4000 - speed) + 1000 : 4000 - speed
-      );
+      )
     }
-
     return () => clearInterval(intervalId);
-  }, [isGameRunning, currBot, players, operator]);
+  }, [isGameRunning, currBot, players, operator, dispatch]);
 
   function playAgain() {
     dispatch(setPlayers(savedState))
@@ -104,7 +184,7 @@ export default function Arena(props) {
         <div className="bots_display">
           <BotRoaster currentLocation iconPalette updateIconPalette />
         </div>
-        <div className="arena">{renderArena(players, collisionLocation, tileNum)}</div>
+        <div className="arena">{renderArena(players, collisionLocation, tileNum, message)}</div>
 
         <div className="mute-clock-start-container">
           <MuteButton isMuted={isMuted} setIsMuted={setIsMuted} />

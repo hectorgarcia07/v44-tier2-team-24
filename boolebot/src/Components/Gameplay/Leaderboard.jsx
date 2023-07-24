@@ -32,7 +32,6 @@ export default function Leaderboard({ leaderboard }) {
     
     useEffect(()=>{
       const playerCopy = [...players]
-      console.log(playerCopy, "player copy")
         const winningArr = playerCopy.sort(function(a, b){
           return b.wins - a.wins
         })

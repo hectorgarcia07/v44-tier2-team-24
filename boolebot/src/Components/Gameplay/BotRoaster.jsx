@@ -10,8 +10,6 @@ export default function BotRoaster({
 }) {
   const { players } = useSelector( state => state.players )
   
-  console.log("Players", players)
-
   const dispatch = useDispatch()
 
   const handleDelete = (botName) => {

@@ -33,8 +33,6 @@ export default function BotsInfo({ updateBotsData, botsData }) {
   const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
   const tileNum = arenaData.tileNum
 
-  console.log(arenaData)
-
   const inputAutoFocus = useAutoFocus(players);
   const [iconPalette, setIconPalette] = useState([
     {

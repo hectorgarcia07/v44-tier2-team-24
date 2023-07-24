@@ -1,12 +1,10 @@
 import sweetAlertMixin from "../Components/SweetAlertConfig";
 
-export const renderArena = (botsArr, collisionLocation, tileNum) => {
+export const renderArena = (botsArr, collisionLocation, tileNum, message) => {
   const arenaStyles = {
     gridTemplateColumns: `repeat(${tileNum}, 3.5em)`, /*changed grid size*/
     gridTemplateRows: `repeat(${tileNum}, 3.5em)`,
   };
-
-  console.log("tileNum", botsArr)
 
   const positions = Array.from(
     { length: tileNum * tileNum },
@@ -18,13 +16,13 @@ export const renderArena = (botsArr, collisionLocation, tileNum) => {
             const robotIndex = botsArr.findIndex(
               (bot) => bot.position === tilePosition
             );
-            return renderTile(tilePosition, robotIndex, botsArr, collisionLocation);
+            return renderTile(tilePosition, robotIndex, botsArr, collisionLocation, message)
           })} 
         </div>
       );
     };
 
-const renderTile = (tilePosition, robotIndex, botsArr, collisionLocation) => {
+const renderTile = (tilePosition, robotIndex, botsArr, collisionLocation, message) => {
     const robot = robotIndex >= 0 ? botsArr[robotIndex] : null;
   
     let tileClass = { backgroundColor: "" };
@@ -33,7 +31,7 @@ const renderTile = (tilePosition, robotIndex, botsArr, collisionLocation) => {
     if (botsArr.length === 1) {
       text = "WINNER!";
     } else if (tilePosition === collisionLocation) {
-      text = message;bot
+      text = message
     }
   
     return (

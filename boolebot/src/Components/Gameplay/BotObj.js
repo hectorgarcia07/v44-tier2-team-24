@@ -103,33 +103,31 @@ export const updateBotPosition = (botObjCopy, newPosition) => {
 }
 
 export const calcNextMove = (botObj, tileNum) => {
-    const botObjCopy = { ...botObj }
+    setNextDirection(botObj, tileNum)
 
-    setNextDirection(botObjCopy, tileNum)
-
-    switch (botObjCopy.direction) {
+    switch (botObj.direction) {
       case 1:
-        return updateBotPosition(botObjCopy, botObjCopy.position - tileNum);
+        return updateBotPosition(botObj, botObj.position - tileNum);
 
       case 2:
-        return updateBotPosition(botObjCopy, botObjCopy.position + tileNum);
+        return updateBotPosition(botObj, botObj.position + tileNum);
 
       case 3:
-        return updateBotPosition(botObjCopy, botObjCopy.position - 1);
+        return updateBotPosition(botObj, botObj.position - 1);
 
       case 4:
-        return updateBotPosition(botObjCopy, botObjCopy.position + 1);
+        return updateBotPosition(botObj, botObj.position + 1);
 
       case 5:
-        return updateBotPosition(botObjCopy, botObjCopy.position - (tileNum - 1));
+        return updateBotPosition(botObj, botObj.position - (tileNum - 1));
 
       case 6:
-        return updateBotPosition(botObjCopy, botObjCopy.position - (tileNum + 1));
+        return updateBotPosition(botObj, botObj.position - (tileNum + 1));
 
       case 7:
-        return updateBotPosition(botObjCopy, botObjCopy.position + (tileNum + 1));
+        return updateBotPosition(botObj, botObj.position + (tileNum + 1));
       case 8:
-        return updateBotPosition(botObjCopy, botObjCopy.position + (tileNum - 1));
+        return updateBotPosition(botObj, botObj.position + (tileNum - 1));
     }
 
   }
