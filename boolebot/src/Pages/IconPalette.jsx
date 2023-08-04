@@ -1,34 +1,18 @@
-export default function IconPalette({
-  iconPalette,
-  botsData,
-  updateBotsData,
-  iconSelected,
-  updateIconSelected, 
-}) {
-
-  function onChangeValue(event) {
-    updateIconSelected(Number(event.target.value))
-
-    let botsDataCopy = { ...botsData };
-
-    updateBotsData({
-      ...botsDataCopy,
-      botIcon: iconPalette[Number(event.target.value)].url,
-    });
-  }
+export default function IconPalette({ formik, iconPalette }) {
 
   const iconEl = iconPalette.map((icon, i) => {
     return (
-      <label htmlFor={`bot${i}`} key={i} className="iconContainer" onChange={(e) => onChangeValue(e)}>
+      <label htmlFor={`bot${i}`} key={i} className="iconContainer" >
         <input
           type="radio"
-          value={i}
+          value={`${i}`}
           id={`bot${i}`}
-          name="bot"
+          name="botIcon"
           readOnly
-          checked={iconSelected === i}
+          checked={formik.values.botIcon === `${i}`}
           disabled={icon.isSelected}
-          
+          onChange={() => formik.setFieldValue('botIcon', `${i}`, true)}
+          onBlur={formik.onBlur}
         />
         <img src={icon.url} alt={`bot icon ${i}`} />
       </label>

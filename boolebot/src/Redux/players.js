@@ -7,15 +7,20 @@ export const playersSlice = createSlice({
     },
     reducers: {
         setPlayers: (state, action) => {
+            console.log("Set players", state.players)
             state.players = action.payload
         },
         resetPlayers: (state) => {
             state.players = []
         },
         removePlayer: (state, action) => {
-            state.players = state.filter((bot,i)=> bot.name !== action.payload)
+            console.log(state.players, action)
+            
+            state.players = state.players.filter((bot,i)=> bot.name !== action.payload)
         },
         addPlayer: (state, action) => {
+            console.log("add players", state.players)
+
             state.players = action.payload
         },
     }

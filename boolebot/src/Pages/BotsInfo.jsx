@@ -9,9 +9,11 @@ import useAutoFocus from '../Components/hooks/useAutoFocus';
 import makeCopyBotsArr from '../utils/makeCopyBotsArr';
 import getOccupiedPos from '../utils/getOccupiedPos';
 import generateUniquePos from '../utils/generateUniquePos';
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addPlayer } from '../Redux/players';
+import { booleanError, uniqueName } from '../Components/Forms/sweetAlert';
+import * as Yup from 'yup';
 
 import bot1 from '../assets/bot1.svg'
 import bot2 from '../assets/bot2.svg'
@@ -22,18 +24,11 @@ import bot6 from '../assets/bot6.svg'
 import bot7 from '../assets/bot7.svg'
 import bot8 from '../assets/bot8.svg'
 import Container from '../Components/Layout/Container';
+import { useFormik } from 'formik';
 
 export default function BotsInfo({ updateBotsData, botsData }) {
   const { arenaData } = useSelector( (state) => state.arenaData )
   const { players } = useSelector( (state) => state.players )
-
-  const dispatch = useDispatch()
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
-  const tileNum = arenaData.tileNum
-
-  const inputAutoFocus = useAutoFocus(players);
   const [iconPalette, setIconPalette] = useState([
     {
       url: bot1,
@@ -69,99 +64,101 @@ export default function BotsInfo({ updateBotsData, botsData }) {
       isSelected: false
     },
   ])
-  const [iconSelected, setIconSelected] = useState(0);
-  const [isValid, setIsValid]= useState({
-    name: false
-  });
+  const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
+  
+  const inputAutoFocus = useAutoFocus(players);
+
   const updateIconPalette = (selectedIcon) =>{
     setIconPalette(selectedIcon);
   }
-  const updateIconSelected = (newSelectedIcon) =>{
-    setIconSelected(newSelectedIcon)
-  }
 
-// Generic change handler
-function handleChange(e){
-  const changedField = e.target.name;
-  const newValue = e.target.value;
-  let botsDataCopy = {...botsData}
-  let isSameName = players.some((bot) => bot.name === newValue)
+  Yup.addMethod(Yup.string, "noRepeatedNames", function (errorMessage, players) {
+    return this.test(`no-repeated-names`, errorMessage, function (value) {
+      const { path, createError } = this;
+      const names = players.map( player => player.name)
+      const result = names.find(name => name == value)
 
-  if (changedField === "name" && isSameName ) {
-    setIsValid( prev => {
-      return { name: isSameName}
-    })
-
-    // Display an error message or perform necessary actions
-    sweetAlertMixin.fire({
-      icon: "error",
-      title: "Oops...",
-      text: `* Each Bots should have unique names`,  
+      return (
+        result == undefined ||
+        createError({ path, message: errorMessage })
+      );
     });
-  }
-  else{
-    updateBotsData({...botsDataCopy, [changedField]: newValue})
-  }
-}
+  });
 
-  //form event- submit
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const BotValidation = Yup.object().shape({
+    name: Yup.string()
+      .min(0, 'Too Short!')
+      .max(9, 'Too Long!')
+      .noRepeatedNames("Name must be unique!", players)
+      .required('Required'),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      value: "1",
+      wins: 0,
+      loses: 0,
+      direction: "1",
+      botIcon: "1"
+    },
+    validationSchema: BotValidation,
+    onSubmit: values => {
+
+      console.log("Bots info values ", values)
+      
+      let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
+      let pos = occupiedPositions.length
+        ? generateUniquePos(occupiedPositions, tileNum)
+        : generateRandomNumber(tileNum * tileNum); 
+
+      //if negative then no more bots can fit in the board
+      if(pos === -1){
+        setIsBotsArrayFull(true)
     
-    let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
-    let pos = occupiedPositions.length
-      ? generateUniquePos(occupiedPositions, tileNum)
-      : generateRandomNumber(tileNum * tileNum); 
-    
-    if(pos === -1){
-      setIsBotsArrayFull(true)
-
-      sweetAlertMixin.fire({
-        icon: "error",
-        title: "Reached full arena capacity ",
-        text: `Can't add more bots to the arena`,
-      });
-    }
-    else{
-      setIsBotsArrayFull(false);
-      let botsArrCopy = makeCopyBotsArr(players);
-      const newBot = {
-        position: pos,
-        direction: Number(botsData.direction),
-        name: botsData.name,
-        value: Number(botsData.value),
-        botIcon: botsData.botIcon,
-        wins: 0,
-        loses: 0,
-      }
-
-      const duplicateBot = botsArrCopy.some((bot) => bot.name === newBot.name);
-
-      if (!duplicateBot) {
-        const newIconPallet = [ ...iconPalette ]
-        newIconPallet[iconSelected].isSelected = true;
-
-        const newIndex = newIconPallet.findIndex((icon) => !icon.isSelected);
-        setIconSelected((prev) => newIndex);
-        setIconPalette((prev) => {
-          return newIconPallet;
+        sweetAlertMixin.fire({
+          icon: "error",
+          title: "Reached full arena capacity ",
+          text: `Can't add more bots to the arena`,
         });
-        const isAllIconSelected = newIndex !== -1;
+      }
+      else{
+        setIsBotsArrayFull(false);
+        let botsArrCopy = makeCopyBotsArr(players)
 
-        if (isAllIconSelected) {
-          updateBotsData({
-            name: "",
-            value: 0,
-            wins: 0,
-            loses: 0,
-            direction: 1,
-            botIcon: iconPalette[newIndex].url,
-          });
+        const newBot = {
+          position: pos,
+          direction: Number(values.direction),
+          name: values.name,
+          value: Number(values.value),
+          botIcon: iconPalette[values.botIcon].url,
+          wins: 0,
+          loses: 0,
+        }
+
+        //update the icon pallet that was selected
+        const newIconPallet = [ ...iconPalette ]
+        newIconPallet[values.botIcon].isSelected = true;
+        setIconPalette(newIconPallet);
+
+        formik.resetForm()
+        const nextIndex = newIconPallet.findIndex((icon) => !icon.isSelected);
+        formik.setFieldValue('botIcon', `${nextIndex}`)
+
+        //if all icon index is taken then disable button
+        if (nextIndex !== -1) {
+          //reset formik
         }
         dispatch(addPlayer([...botsArrCopy, newBot]))
       }
-    }    
-  };
+    
+  }
+});
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const tileNum = arenaData.tileNum
 
   function handleEnterArena(){
     if(players.length === 1){
@@ -190,7 +187,12 @@ function handleChange(e){
         </div>
 
         <div className="test">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            console.log("Submit!!")
+
+            formik.handleSubmit()
+          }}>
             <fieldset>
               <label htmlFor="name">
                 Name your bot:
@@ -200,20 +202,13 @@ function handleChange(e){
                   type="text"
                   id="name"
                   name="name"
-                  value={botsData.name}
-                  onChange={handleChange}
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.onBlur}
                   maxLength={9}
                   required
                 />
               </label>
-              {isValid.name ? (
-                <p style={{ color: "red" }}>
-                  {" "}
-                  * Each Bots should have a unique name
-                </p>
-              ) : (
-                ""
-              )}
 
               <div></div>
               
@@ -222,11 +217,7 @@ function handleChange(e){
                   className="question-button"
                   onClick={(e) => {
                     e.preventDefault();
-                    sweetAlertMixin.fire({
-                      title: 'Boolean Operator',
-                      text: 'Pick either 0 or 1 and this will determine the outcome of a collision between two bots. When two bots collide, the boolean values are evaluated using the boolean operation that was chosen on the Arena Settings page',
-                      confirmButtonText: 'OK'
-                    });
+                    sweetAlertMixin.fire(booleanError);
                   }}
                 >
                   ?
@@ -234,8 +225,9 @@ function handleChange(e){
                 <select
                   id="value"
                   name="value"
-                  value={botsData.value}
-                  onChange={handleChange}
+                  value={formik.values.value}
+                  onChange={formik.handleChange}
+                  onBlur={formik.onBlur}
                   required
                 >
                   <option value="" disabled>
@@ -250,11 +242,8 @@ function handleChange(e){
 
               <IconPalette
                 id="icons"
+                formik={formik}
                 iconPalette={iconPalette}
-                botsData={botsData}
-                updateBotsData={updateBotsData}
-                iconSelected={iconSelected}
-                updateIconSelected={updateIconSelected}
               />
 
               <label htmlFor="direction">
@@ -262,8 +251,9 @@ function handleChange(e){
                 <select
                   id="direction"
                   name="direction"
-                  value={botsData.direction}
-                  onChange={handleChange}
+                  value={formik.values.direction}
+                  onChange={formik.handleChange}
+                  onBlur={formik.onBlur}
                   required
                 >
                   <option value="" disabled>

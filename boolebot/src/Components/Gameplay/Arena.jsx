@@ -17,6 +17,7 @@ import { setPlayers } from "../../Redux/players";
 import { calcNextMove } from "./BotObj";
 import { checkCollision, handleCollision } from "../../utils/collisionLogic";
 import { callSound }  from "../../utils/gameUtils.jsx"
+import botMovement from "../../utils/gameUtils.jsx";
 import IndianaJonesPunch from "../../assets/sfx/indiana-jones-punch_down.mp3"
 
 export default function Arena(props) {
@@ -78,84 +79,83 @@ export default function Arena(props) {
 
       intervalId = setInterval(
         () => {
-          console.log("Players", players[currBot])
-
           setCollisionLocation(() => null)
-          const newPlayer = players.map( bot => {
-            return { ...bot }
-          })
-          //newBotsArr
+  
+        const newPlayer = players.map( bot => {
+          return { ...bot }
+        })
+        //newBotsArr
 
-          calcNextMove(newPlayer[currBot], tileNum)
-          console.log("New move", newPlayer[currBot])
+        calcNextMove(newPlayer[currBot], tileNum)
+        console.log("New move", newPlayer[currBot])
 
-          const collisionTileIndex = checkCollision(currBot, newPlayer);
+        const collisionTileIndex = checkCollision(currBot, newPlayer);
 
-          const didCollide = collisionTileIndex !== -1;
+        const didCollide = collisionTileIndex !== -1;
 
-          if (didCollide) {
-            setCollisionLocation(() => collisionTileIndex);
+        if (didCollide) {
+          setCollisionLocation(() => collisionTileIndex);
 
-            const collidedBotsArr = handleCollision(
-              newPlayer,
-              operator,
-              newPlayer[currBot].name,
-            );
+          const collidedBotsArr = handleCollision(
+            newPlayer,
+            operator,
+            newPlayer[currBot].name,
+          );
 
-            if (!collidedBotsArr.isATie) {
-              setMessage("💥💥💥");
-              callSound(IndianaJonesPunch, isMuted);
-              setBattleLog((prev) => [
+          if (!collidedBotsArr.isATie) {
+            setMessage("💥💥💥");
+            callSound(IndianaJonesPunch, isMuted);
+            setBattleLog((prev) => [
+              ...prev,
+              <div>
+                {`${collidedBotsArr.bots[0].name} (👑) vs. ${collidedBotsArr.bots[1].name} (😭)`}
+              </div>,
+            ]);
+
+            setLeaderboard((prev) => {
+              return {
                 ...prev,
-                <div>
-                  {`${collidedBotsArr.bots[0].name} (👑) vs. ${collidedBotsArr.bots[1].name} (😭)`}
-                </div>,
-              ]);
-
-              setLeaderboard((prev) => {
-                return {
-                  ...prev,
-                  [collidedBotsArr.bots[0].name]: {
-                    wins: collidedBotsArr.bots[0].wins,
-                    loses: collidedBotsArr.bots[0].loses,
-                  },
-                  [collidedBotsArr.bots[1].name]: {
-                    wins: collidedBotsArr.bots[1].wins,
-                    loses: collidedBotsArr.bots[1].loses,
-                  },
-                };
-              });
-
-              let loserIndex = newPlayer.findIndex(
-                (bot) => bot.name === collidedBotsArr.bots[1].name
-              );
-              newPlayer.splice(loserIndex, 1);
-            }
-            else {
-              setMessage("TIE!")
-              setBattleLog((prev) => [
-                ...prev,
-                <div>
-                  {`${collidedBotsArr.bots[0].name} (🎀) vs. ${collidedBotsArr.bots[1].name} (🎀)`}
-                </div>,
-              ]);
-            }
-          } 
-
-          if (newPlayer.length < players.length) {
-            setCurrBot((prev) => {
-              if (prev === 0) {
-                return prev + 1;
-              }
-              return prev - 1;
+                [collidedBotsArr.bots[0].name]: {
+                  wins: collidedBotsArr.bots[0].wins,
+                  loses: collidedBotsArr.bots[0].loses,
+                },
+                [collidedBotsArr.bots[1].name]: {
+                  wins: collidedBotsArr.bots[1].wins,
+                  loses: collidedBotsArr.bots[1].loses,
+                },
+              };
             });
-          } else {
-            setCurrBot((prev) =>
-              prev >= newPlayer.length - 1 ? 0 : prev + 1
-            );
-          }
 
-          dispatch( setPlayers(newPlayer) )
+            let loserIndex = newPlayer.findIndex(
+              (bot) => bot.name === collidedBotsArr.bots[1].name
+            );
+            newPlayer.splice(loserIndex, 1);
+          }
+          else {
+            setMessage("TIE!")
+            setBattleLog((prev) => [
+              ...prev,
+              <div>
+                {`${collidedBotsArr.bots[0].name} (🎀) vs. ${collidedBotsArr.bots[1].name} (🎀)`}
+              </div>,
+            ]);
+          }
+        } 
+
+        if (newPlayer.length < players.length) {
+          setCurrBot((prev) => {
+            if (prev === 0) {
+              return prev + 1;
+            }
+            return prev - 1;
+          });
+        } else {
+          setCurrBot((prev) =>
+            prev >= newPlayer.length - 1 ? 0 : prev + 1
+          );
+        }
+
+        dispatch( setPlayers(newPlayer) )
         }, 
         collisionLocation ? (4000 - speed) + 1000 : 4000 - speed
       )
