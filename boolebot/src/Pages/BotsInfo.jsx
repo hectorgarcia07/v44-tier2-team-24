@@ -12,7 +12,7 @@ import generateUniquePos from '../utils/generateUniquePos';
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addPlayer } from '../Redux/players';
-import { booleanError, uniqueName } from '../Components/Forms/sweetAlert';
+import { booleanError } from '../Components/FormComponents/sweetAlert';
 import * as Yup from 'yup';
 
 import bot1 from '../assets/bot1.svg'
@@ -26,7 +26,7 @@ import bot8 from '../assets/bot8.svg'
 import Container from '../Components/Layout/Container';
 import { useFormik } from 'formik';
 
-export default function BotsInfo({ updateBotsData, botsData }) {
+export default function BotsInfo() {
   const { arenaData } = useSelector( (state) => state.arenaData )
   const { players } = useSelector( (state) => state.players )
   const [iconPalette, setIconPalette] = useState([
@@ -65,9 +65,7 @@ export default function BotsInfo({ updateBotsData, botsData }) {
     },
   ])
   const [isBotsArrayFull, setIsBotsArrayFull] = useState(false)
-  
   const inputAutoFocus = useAutoFocus(players);
-
   const updateIconPalette = (selectedIcon) =>{
     setIconPalette(selectedIcon);
   }
@@ -107,50 +105,50 @@ export default function BotsInfo({ updateBotsData, botsData }) {
 
       console.log("Bots info values ", values)
       
-      let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
-      let pos = occupiedPositions.length
-        ? generateUniquePos(occupiedPositions, tileNum)
-        : generateRandomNumber(tileNum * tileNum); 
+    let occupiedPositions = getOccupiedPos(players, arenaData, tileNum)
+    let pos = occupiedPositions.length
+      ? generateUniquePos(occupiedPositions, tileNum)
+      : generateRandomNumber(tileNum * tileNum); 
 
-      //if negative then no more bots can fit in the board
-      if(pos === -1){
-        setIsBotsArrayFull(true)
+    //if negative then no more bots can fit in the board
+    if(pos === -1){
+      setIsBotsArrayFull(true)
     
-        sweetAlertMixin.fire({
-          icon: "error",
-          title: "Reached full arena capacity ",
-          text: `Can't add more bots to the arena`,
-        });
+      sweetAlertMixin.fire({
+        icon: "error",
+        title: "Reached full arena capacity ",
+        text: `Can't add more bots to the arena`,
+      });
+    }
+    else{
+      setIsBotsArrayFull(false);
+      let botsArrCopy = makeCopyBotsArr(players)
+
+      const newBot = {
+        position: pos,
+        direction: Number(values.direction),
+        name: values.name,
+        value: Number(values.value),
+        botIcon: iconPalette[values.botIcon].url,
+        wins: 0,
+        loses: 0,
       }
-      else{
-        setIsBotsArrayFull(false);
-        let botsArrCopy = makeCopyBotsArr(players)
 
-        const newBot = {
-          position: pos,
-          direction: Number(values.direction),
-          name: values.name,
-          value: Number(values.value),
-          botIcon: iconPalette[values.botIcon].url,
-          wins: 0,
-          loses: 0,
-        }
+      //update the icon pallet that was selected
+      const newIconPallet = [ ...iconPalette ]
+      newIconPallet[values.botIcon].isSelected = true;
+      setIconPalette(newIconPallet);
 
-        //update the icon pallet that was selected
-        const newIconPallet = [ ...iconPalette ]
-        newIconPallet[values.botIcon].isSelected = true;
-        setIconPalette(newIconPallet);
+      formik.resetForm()
+      const nextIndex = newIconPallet.findIndex((icon) => !icon.isSelected);
+      formik.setFieldValue('botIcon', `${nextIndex}`)
 
-        formik.resetForm()
-        const nextIndex = newIconPallet.findIndex((icon) => !icon.isSelected);
-        formik.setFieldValue('botIcon', `${nextIndex}`)
-
-        //if all icon index is taken then disable button
-        if (nextIndex !== -1) {
-          //reset formik
-        }
-        dispatch(addPlayer([...botsArrCopy, newBot]))
+      //if all icon index is taken then disable button
+      if (nextIndex !== -1) {
+        //reset formik
       }
+      dispatch(addPlayer([...botsArrCopy, newBot]))
+    }
     
   }
 });
