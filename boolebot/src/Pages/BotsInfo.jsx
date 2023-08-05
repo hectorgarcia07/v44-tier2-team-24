@@ -12,7 +12,8 @@ import generateUniquePos from '../utils/generateUniquePos';
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addPlayer } from '../Redux/players';
-import { booleanError } from '../Components/FormComponents/sweetAlert';
+import { booleanInfo, directionInfo } from '../Components/FormComponents/sweetAlert';
+import { InputDropDown } from '../Components/FormComponents/InputDropDown';
 import * as Yup from 'yup';
 
 import bot1 from '../assets/bot1.svg'
@@ -144,8 +145,8 @@ export default function BotsInfo() {
       formik.setFieldValue('botIcon', `${nextIndex}`)
 
       //if all icon index is taken then disable button
-      if (nextIndex !== -1) {
-        //reset formik
+      if (nextIndex === -1) {
+        setIsBotsArrayFull(true);
       }
       dispatch(addPlayer([...botsArrCopy, newBot]))
     }
@@ -207,66 +208,42 @@ export default function BotsInfo() {
                   required
                 />
               </label>
-
-              <div></div>
-              
-              <label htmlFor="value">
-                <span className="question-space">Choose a Boolean Value</span> <button
-                  className="question-button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    sweetAlertMixin.fire(booleanError);
-                  }}
-                >
-                  ?
-                </button>
-                <select
-                  id="value"
-                  name="value"
-                  value={formik.values.value}
-                  onChange={formik.handleChange}
-                  onBlur={formik.onBlur}
-                  required
-                >
-                  <option value="" disabled>
-                    Select a Value
-                  </option>
-                  <option value="1">1</option>
-                  <option value="0">0</option>
-                </select>
-              </label>
-
+              <InputDropDown 
+                name="value"
+                label="Choose a Boolean Value"
+                sweetAlert={booleanInfo}
+                formikValue={formik.values.value}
+                formik={formik}
+                optionLabel="Select a Value"
+                optionMap={[
+                  {key: "1", value: "1"},
+                  {key: "2", value: "2"},
+                ]}
+              />
               <label htmlFor="icons">Bot Icon</label>
-
               <IconPalette
                 id="icons"
                 formik={formik}
                 iconPalette={iconPalette}
               />
-
-              <label htmlFor="direction">
-                Bot Direction:
-                <select
-                  id="direction"
-                  name="direction"
-                  value={formik.values.direction}
-                  onChange={formik.handleChange}
-                  onBlur={formik.onBlur}
-                  required
-                >
-                  <option value="" disabled>
-                    Select a Direction
-                  </option>
-                  <option value="1">↑</option>
-                  <option value="2">↓</option>
-                  <option value="3">←</option>
-                  <option value="4">→</option>
-                  <option value="5">↗</option>
-                  <option value="6">↖</option>
-                  <option value="7">↘</option>
-                  <option value="8">↙</option>
-                </select>
-              </label>
+              <InputDropDown 
+                name="direction"
+                label="Bot Direction:"
+                sweetAlert={directionInfo}
+                formikValue={formik.values.direction}
+                formik={formik}
+                optionLabel="Select a direction"
+                optionMap={[ 
+                  {key: "1", value: "↑"},
+                  {key: "2", value: "↓"},
+                  {key: "3", value: "←"},
+                  {key: "4", value: "→"},
+                  {key: "5", value: "↗"},
+                  {key: "6", value: "↖"},
+                  {key: "7", value: "↘"},
+                  {key: "8", value: "↙"}
+                ]}
+              />
               <button type="submit" className="bot-submission-btn" disabled={isBotsArrayFull}>
                 Add Bot
               </button>

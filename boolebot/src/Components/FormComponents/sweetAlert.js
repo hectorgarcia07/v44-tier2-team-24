@@ -40,11 +40,17 @@ export const booleanOperator = {
     confirmButtonText: 'OK'
 }
 
-export const booleanError = {
+export const booleanInfo = {
     title: 'Boolean Operator',
     text: 'Pick either 0 or 1 and this will determine the outcome of a collision between two bots. When two bots collide, the boolean values are evaluated using the boolean operation that was chosen on the Arena Settings page',
     confirmButtonText: 'OK'
-  }
+}
+
+export const directionInfo = {
+    title: 'Direction',
+    text: 'This will determine the bots original starting direction and a new direction is randomly assigned when it hits a wall',
+    confirmButtonText: 'OK'
+}
 
 export const uniqueName = {
     icon: "error",
